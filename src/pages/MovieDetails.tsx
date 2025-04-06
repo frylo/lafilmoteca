@@ -33,7 +33,7 @@ const MovieDetails = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-filmoteca-olive"></div>
       </div>
     );
   }
@@ -41,11 +41,11 @@ const MovieDetails = () => {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-500 text-white p-4 rounded-lg">
+        <div className="bg-red-900 bg-opacity-30 border border-red-800 text-filmoteca-white p-4 rounded-lg">
           {error}
         </div>
         <div className="mt-4">
-          <Link to="/" className="text-blue-400 hover:text-blue-300">
+          <Link to="/" className="text-filmoteca-olive hover:text-filmoteca-white transition-colors duration-200">
             &larr; Volver al inicio
           </Link>
         </div>
@@ -56,11 +56,11 @@ const MovieDetails = () => {
   if (!movie) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-yellow-500 text-white p-4 rounded-lg">
+        <div className="bg-yellow-900 bg-opacity-30 border border-yellow-800 text-filmoteca-white p-4 rounded-lg">
           No se encontró la película solicitada.
         </div>
         <div className="mt-4">
-          <Link to="/" className="text-blue-400 hover:text-blue-300">
+          <Link to="/" className="text-filmoteca-olive hover:text-filmoteca-white transition-colors duration-200">
             &larr; Volver al inicio
           </Link>
         </div>
@@ -77,11 +77,11 @@ const MovieDetails = () => {
             <img 
               src={movie.poster} 
               alt={`${movie.title} poster`} 
-              className="w-full rounded-lg shadow-lg"
+              className="w-full rounded-lg shadow-md border border-filmoteca-gray border-opacity-20"
             />
           ) : (
-            <div className="w-full h-96 bg-gray-700 flex items-center justify-center rounded-lg">
-              <span className="text-gray-400">No hay imagen disponible</span>
+            <div className="w-full h-96 bg-filmoteca-gray bg-opacity-20 flex items-center justify-center rounded-lg border border-filmoteca-gray border-opacity-30">
+              <span className="text-filmoteca-gray">No hay imagen disponible</span>
             </div>
           )}
         </div>
@@ -89,7 +89,7 @@ const MovieDetails = () => {
         {/* Movie Info */}
         <div className="md:w-2/3">
           <div className="mb-4">
-            <Link to="/" className="text-blue-400 hover:text-blue-300">
+            <Link to="/" className="text-filmoteca-olive hover:text-filmoteca-white transition-colors duration-200">
               &larr; Volver al buscador
             </Link>
           </div>
@@ -97,22 +97,22 @@ const MovieDetails = () => {
           <h1 className="text-3xl font-bold mb-2">{movie.title}</h1>
           
           {movie.originalTitle && movie.originalTitle !== movie.title && (
-            <h2 className="text-xl text-gray-400 mb-4">{movie.originalTitle}</h2>
+            <h2 className="text-xl text-filmoteca-gray mb-4">{movie.originalTitle}</h2>
           )}
           
           <div className="flex flex-wrap gap-2 mb-4">
             {movie.year && (
-              <span className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+              <span className="bg-filmoteca-dark border border-filmoteca-gray border-opacity-50 px-3 py-1 rounded-full text-sm">
                 {movie.year}
               </span>
             )}
             {movie.runtime && (
-              <span className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+              <span className="bg-filmoteca-dark border border-filmoteca-gray border-opacity-50 px-3 py-1 rounded-full text-sm">
                 {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}min
               </span>
             )}
             {movie.rating && (
-              <span className="bg-yellow-600 px-3 py-1 rounded-full text-sm flex items-center">
+              <span className="bg-filmoteca-olive bg-opacity-90 px-3 py-1 rounded-full text-sm flex items-center">
                 <span className="mr-1">★</span>
                 {(movie.rating / 2).toFixed(1)}
               </span>
@@ -123,7 +123,7 @@ const MovieDetails = () => {
             <div className="mb-4">
               <div className="flex flex-wrap gap-2">
                 {movie.genres.map((genre) => (
-                  <span key={genre} className="bg-blue-600 px-3 py-1 rounded-full text-sm">
+                  <span key={genre} className="bg-filmoteca-gray bg-opacity-20 border border-filmoteca-gray border-opacity-30 px-3 py-1 rounded-full text-sm">
                     {genre}
                   </span>
                 ))}
@@ -133,22 +133,22 @@ const MovieDetails = () => {
           
           {movie.director && (
             <div className="mb-4">
-              <h3 className="text-lg font-semibold">Director</h3>
-              <p>{movie.director}</p>
+              <h3 className="text-lg font-semibold text-filmoteca-white">Director</h3>
+              <p className="text-filmoteca-light">{movie.director}</p>
             </div>
           )}
           
           {movie.cast && movie.cast.length > 0 && (
             <div className="mb-4">
-              <h3 className="text-lg font-semibold">Reparto principal</h3>
-              <p>{movie.cast.join(', ')}</p>
+              <h3 className="text-lg font-semibold text-filmoteca-white">Reparto principal</h3>
+              <p className="text-filmoteca-light">{movie.cast.join(', ')}</p>
             </div>
           )}
           
           {movie.plot && (
             <div className="mb-4">
-              <h3 className="text-lg font-semibold">Sinopsis</h3>
-              <p className="text-gray-300">{movie.plot}</p>
+              <h3 className="text-lg font-semibold text-filmoteca-white">Sinopsis</h3>
+              <p className="text-filmoteca-light">{movie.plot}</p>
             </div>
           )}
         </div>

@@ -17,10 +17,12 @@ const MovieSearch = ({ onSelectMovie }: MovieSearchProps) => {
 
   const handleSearch = async (page = 1) => {
     if (!query.trim()) return;
-    
+    if (!import.meta.env.VITE_TMDB_API_KEY) {
+      setError('API key is missing. Please configure the environment variables.');
+      return;
+    }
     setLoading(true);
     setError(null);
-    
     try {
       const result = await searchMovies(query, page);
       setMovies(result.movies);
@@ -52,27 +54,28 @@ const MovieSearch = ({ onSelectMovie }: MovieSearchProps) => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <form onSubmit={handleSubmit} className="mb-6">
-        <div className="flex">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar películas..."
-            className="flex-grow px-4 py-2 text-gray-900 bg-white rounded-l-lg focus:outline-none"
-          />
+    <div>
+      <form onSubmit={handleSubmit} className="mb-8">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-grow">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar películas..."
+              className="form-input"
+            />
+          </div>
           <button
             type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 focus:outline-none disabled:bg-blue-400"
-            disabled={loading || !query.trim()}
+            className="btn-primary"
           >
-            {loading ? 'Buscando...' : 'Buscar'}
+            Buscar
           </button>
         </div>
       </form>
 
-      <MovieResults 
+      <MovieResults
         movies={movies}
         loading={loading}
         error={error}

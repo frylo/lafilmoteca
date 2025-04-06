@@ -23,18 +23,18 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center">Iniciar Sesión</h2>
+    <div className="bg-filmoteca-dark p-6 rounded-lg shadow-md border border-filmoteca-gray border-opacity-30 max-w-md mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-center text-filmoteca-white">Iniciar Sesión</h2>
       
       {error && (
-        <div className="bg-red-500 text-white p-3 rounded mb-4">
+        <div className="bg-red-900 bg-opacity-30 border border-red-800 text-filmoteca-white p-3 rounded mb-4">
           {error}
         </div>
       )}
       
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium mb-1">
+          <label htmlFor="email" className="block text-sm font-medium mb-1 text-filmoteca-light">
             Email
           </label>
           <input
@@ -42,13 +42,13 @@ export const LoginForm = () => {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:outline-none"
+            className="form-input"
             required
           />
         </div>
         
         <div className="mb-6">
-          <label htmlFor="password" className="block text-sm font-medium mb-1">
+          <label htmlFor="password" className="block text-sm font-medium mb-1 text-filmoteca-light">
             Contraseña
           </label>
           <input
@@ -56,7 +56,7 @@ export const LoginForm = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:outline-none"
+            className="form-input"
             required
           />
         </div>
@@ -64,7 +64,7 @@ export const LoginForm = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
         </button>
@@ -107,24 +107,24 @@ export const RegisterForm = () => {
   };
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center">Crear Cuenta</h2>
+    <div className="bg-filmoteca-dark p-6 rounded-lg shadow-md border border-filmoteca-gray border-opacity-30 max-w-md mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-center text-filmoteca-white">Crear Cuenta</h2>
       
       {error && (
-        <div className="bg-red-500 text-white p-3 rounded mb-4">
+        <div className="bg-red-900 bg-opacity-30 border border-red-800 text-filmoteca-white p-3 rounded mb-4">
           {error}
         </div>
       )}
       
       {passwordError && (
-        <div className="bg-red-500 text-white p-3 rounded mb-4">
+        <div className="bg-red-900 bg-opacity-30 border border-red-800 text-filmoteca-white p-3 rounded mb-4">
           {passwordError}
         </div>
       )}
       
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label htmlFor="displayName" className="block text-sm font-medium mb-1">
+          <label htmlFor="displayName" className="block text-sm font-medium mb-1 text-filmoteca-light">
             Nombre
           </label>
           <input
@@ -132,13 +132,13 @@ export const RegisterForm = () => {
             id="displayName"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:outline-none"
+            className="form-input"
             required
           />
         </div>
         
         <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium mb-1">
+          <label htmlFor="email" className="block text-sm font-medium mb-1 text-filmoteca-light">
             Email
           </label>
           <input
@@ -146,13 +146,13 @@ export const RegisterForm = () => {
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:outline-none"
+            className="form-input"
             required
           />
         </div>
         
         <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium mb-1">
+          <label htmlFor="password" className="block text-sm font-medium mb-1 text-filmoteca-light">
             Contraseña
           </label>
           <input
@@ -160,14 +160,14 @@ export const RegisterForm = () => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:outline-none"
+            className="form-input"
             required
             minLength={6}
           />
         </div>
         
         <div className="mb-6">
-          <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
+          <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1 text-filmoteca-light">
             Confirmar Contraseña
           </label>
           <input
@@ -175,7 +175,7 @@ export const RegisterForm = () => {
             id="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:border-blue-500 focus:outline-none"
+            className="form-input"
             required
             minLength={6}
           />
@@ -184,7 +184,7 @@ export const RegisterForm = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Registrando...' : 'Crear Cuenta'}
         </button>

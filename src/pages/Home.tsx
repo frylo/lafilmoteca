@@ -32,20 +32,20 @@ const Home = () => {
   }, []);
   
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-filmoteca-olive"></div></div>;
   }
   
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Buscador de Películas</h1>
+      <h1 className="text-3xl font-bold mb-6 text-filmoteca-white">Buscador de Películas</h1>
       <MovieSearch onSelectMovie={(movie) => console.log('Selected movie:', movie)} />
       
       {movies.length > 0 && (
         <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">Películas Destacadas</h2>
+          <h2 className="text-2xl font-bold mb-6 text-filmoteca-white">Películas Destacadas</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {movies.map(movie => (
-              <div key={movie.id} className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+              <div key={movie.id} className="card">
                 <img 
                   src={movie.poster} 
                   alt={`${movie.title} poster`} 

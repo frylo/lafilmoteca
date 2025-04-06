@@ -15,16 +15,16 @@ const Layout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col">
-      <header className="bg-gray-800 shadow-md">
+    <div className="min-h-screen bg-filmoteca-dark text-filmoteca-white flex flex-col">
+      <header className="bg-filmoteca-dark shadow-md border-b border-filmoteca-gray border-opacity-30">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">LaFilmoteca</h1>
+          <h1 className="text-2xl font-bold text-filmoteca-white">LaFilmoteca</h1>
           
           {/* Menú para móviles */}
           <div className="md:hidden">
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-white focus:outline-none"
+              className="text-filmoteca-white focus:outline-none focus:ring-2 focus:ring-filmoteca-olive focus:ring-opacity-50 rounded"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 {isMenuOpen ? (
@@ -39,17 +39,17 @@ const Layout = () => {
           {/* Menú para escritorio */}
           <nav className="hidden md:block">
             <ul className="flex space-x-6">
-              <li><a href="/" className="hover:text-blue-400">Inicio</a></li>
+              <li><a href="/" className="text-filmoteca-white hover:text-filmoteca-olive transition-colors duration-200">Inicio</a></li>
               {currentUser ? (
                 <>
-                  <li><a href="/profile" className="hover:text-blue-400">Mi Perfil</a></li>
-                  <li><a href="#" onClick={handleSignOut} className="hover:text-blue-400">Cerrar Sesión</a></li>
+                  <li><a href="/profile" className="text-filmoteca-white hover:text-filmoteca-olive transition-colors duration-200">Mi Perfil</a></li>
+                  <li><a href="#" onClick={handleSignOut} className="text-filmoteca-white hover:text-filmoteca-olive transition-colors duration-200">Cerrar Sesión</a></li>
                 </>
               ) : (
-                <li><a href="/auth" className="hover:text-blue-400">Iniciar Sesión</a></li>
+                <li><a href="/auth" className="text-filmoteca-white hover:text-filmoteca-olive transition-colors duration-200">Iniciar Sesión</a></li>
               )}
               {userRole === 'admin' && (
-                <li><a href="/admin" className="hover:text-blue-400">Administración</a></li>
+                <li><a href="/admin" className="text-filmoteca-white hover:text-filmoteca-olive transition-colors duration-200">Administración</a></li>
               )}
             </ul>
           </nav>
@@ -57,20 +57,20 @@ const Layout = () => {
         
         {/* Menú móvil desplegable */}
         {isMenuOpen && (
-          <div className="md:hidden bg-gray-800 py-2">
+          <div className="md:hidden bg-filmoteca-dark border-t border-filmoteca-gray border-opacity-30 py-2">
             <div className="container mx-auto px-4">
               <ul className="space-y-2">
-                <li><a href="/" className="block py-2 hover:text-blue-400">Inicio</a></li>
+                <li><a href="/" className="block py-2 text-filmoteca-white hover:text-filmoteca-olive transition-colors duration-200">Inicio</a></li>
                 {currentUser ? (
                   <>
-                    <li><a href="/profile" className="block py-2 hover:text-blue-400">Mi Perfil</a></li>
-                    <li><a href="#" onClick={handleSignOut} className="block py-2 hover:text-blue-400">Cerrar Sesión</a></li>
+                    <li><a href="/profile" className="block py-2 text-filmoteca-white hover:text-filmoteca-olive transition-colors duration-200">Mi Perfil</a></li>
+                    <li><a href="#" onClick={handleSignOut} className="block py-2 text-filmoteca-white hover:text-filmoteca-olive transition-colors duration-200">Cerrar Sesión</a></li>
                   </>
                 ) : (
-                  <li><a href="/auth" className="block py-2 hover:text-blue-400">Iniciar Sesión</a></li>
+                  <li><a href="/auth" className="block py-2 text-filmoteca-white hover:text-filmoteca-olive transition-colors duration-200">Iniciar Sesión</a></li>
                 )}
                 {userRole === 'admin' && (
-                  <li><a href="/admin" className="block py-2 hover:text-blue-400">Administración</a></li>
+                  <li><a href="/admin" className="block py-2 text-filmoteca-white hover:text-filmoteca-olive transition-colors duration-200">Administración</a></li>
                 )}
               </ul>
             </div>
@@ -82,8 +82,8 @@ const Layout = () => {
         <Outlet />
       </main>
       
-      <footer className="bg-gray-800 py-6 mt-auto">
-        <div className="container mx-auto px-4 text-center text-gray-400">
+      <footer className="bg-filmoteca-dark border-t border-filmoteca-gray border-opacity-30 py-6 mt-auto">
+        <div className="container mx-auto px-4 text-center text-filmoteca-gray">
           <p>© {new Date().getFullYear()} LaFilmoteca - Todos los derechos reservados</p>
         </div>
       </footer>

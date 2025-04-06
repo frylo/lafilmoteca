@@ -1,7 +1,7 @@
 // Main App component for LaFilmoteca
 import { AuthProvider } from './contexts/AuthContext';
 import AppRouter from './router/AppRouter';
-import './App.css'
+import './index.css'
 
 function App() {
   return (
