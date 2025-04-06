@@ -21,6 +21,7 @@ export interface User {
   email: string;
   displayName?: string;
   photoURL?: string;
+  role?: 'guest' | 'user' | 'admin';
 }
 
 // Review related types
