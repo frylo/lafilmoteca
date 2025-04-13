@@ -22,6 +22,9 @@ export interface User {
   displayName?: string;
   photoURL?: string;
   role?: 'guest' | 'user' | 'admin';
+  bio?: string;
+  followers?: string[];
+  following?: string[];
 }
 
 // Review related types

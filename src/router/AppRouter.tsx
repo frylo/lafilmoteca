@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Home from '../pages/Home';
 import Auth from '../pages/Auth';
 import MovieDetails from '../pages/MovieDetails';
+import Profile from '../pages/Profile';
 import Layout from '../components/layout/Layout';
 
 // Rutas protegidas que requieren autenticación
@@ -58,11 +59,11 @@ const AppRouter = () => {
           } />
           
           {/* Rutas protegidas */}
-          {/* <Route path="profile" element={
+          <Route path="profile" element={
             <ProtectedRoute>
               <Profile />
             </ProtectedRoute>
-          } /> */}
+          } />
           
           {/* Ruta para manejar rutas no encontradas */}
           <Route path="*" element={<Navigate to="/" replace />} />
