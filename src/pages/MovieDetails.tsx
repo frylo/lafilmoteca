@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getMovieDetails } from '../lib/tmdb';
 import { Movie } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import AddToCollection from '../components/ui/AddToCollection';
 
 const MovieDetails = () => {
   const { id } = useParams<{ id: string }>();
+  const { currentUser } = useAuth();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -149,6 +152,13 @@ const MovieDetails = () => {
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-filmoteca-white">Sinopsis</h3>
               <p className="text-filmoteca-light">{movie.plot}</p>
+            </div>
+          )}
+          
+          {/* Añadir a colección (solo para usuarios autenticados) */}
+          {currentUser && (
+            <div className="mt-6">
+              <AddToCollection userId={currentUser.uid} movieId={id || ''} />
             </div>
           )}
         </div>

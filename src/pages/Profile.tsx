@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import UserCollections from '../components/ui/UserCollections';
+import CollectionForm from '../components/ui/CollectionForm';
 
 const Profile = () => {
   const { currentUser } = useAuth();
@@ -12,6 +14,8 @@ const Profile = () => {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showCollectionForm, setShowCollectionForm] = useState(false);
+  const [collectionsCount, setCollectionsCount] = useState(0);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -156,7 +160,7 @@ const Profile = () => {
         )}
       </div>
       
-      <div className="bg-filmoteca-dark p-6 rounded-lg shadow-md border border-filmoteca-gray border-opacity-30">
+      <div className="bg-filmoteca-dark p-6 rounded-lg shadow-md border border-filmoteca-gray border-opacity-30 mb-8">
         <h2 className="text-xl font-semibold mb-4 text-filmoteca-white">Estadísticas</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-filmoteca-gray bg-opacity-20 p-4 rounded-lg">
@@ -169,10 +173,25 @@ const Profile = () => {
           </div>
           <div className="bg-filmoteca-gray bg-opacity-20 p-4 rounded-lg">
             <h3 className="text-lg font-medium mb-2 text-filmoteca-white">Colecciones</h3>
-            <p className="text-2xl font-bold text-filmoteca-olive">0</p>
+            <p className="text-2xl font-bold text-filmoteca-olive">{collectionsCount}</p>
           </div>
         </div>
       </div>
+      
+      {showCollectionForm ? (
+        <CollectionForm 
+          userId={currentUser?.uid || ''}
+          onSuccess={() => {
+            setShowCollectionForm(false);
+          }}
+          onCancel={() => setShowCollectionForm(false)}
+        />
+      ) : (
+        <UserCollections 
+          userId={currentUser?.uid || ''}
+          onCreateCollection={() => setShowCollectionForm(true)}
+        />
+      )}
     </div>
   );
 };
