@@ -5,6 +5,7 @@ import Auth from '../pages/Auth';
 import MovieDetails from '../pages/MovieDetails';
 import Profile from '../pages/Profile';
 import CollectionDetails from '../pages/CollectionDetails';
+import Admin from '../pages/Admin';
 import Layout from '../components/layout/Layout';
 
 // Rutas protegidas que requieren autenticación
@@ -68,6 +69,11 @@ const AppRouter = () => {
           <Route path="collections/:id" element={
             <ProtectedRoute>
               <CollectionDetails />
+            </ProtectedRoute>
+          } />
+          <Route path="admin" element={
+            <ProtectedRoute>
+              <Admin />
             </ProtectedRoute>
           } />
           

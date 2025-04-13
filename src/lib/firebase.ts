@@ -1,14 +1,11 @@
-// Firebase configuration for lafilmoteca
-// TODO: Add proper error handling for Firebase operations
-
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import {
+  initializeFirestore,
+} from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 import { getAnalytics } from 'firebase/analytics';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -19,11 +16,16 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize services
-const db = getFirestore(app);
+// Initialize Firestore with persistence cache settings
+const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
+
+// Log successful initialization
+console.log('Firestore initialized with persistence cache');
+
 const auth = getAuth(app);
 const storage = getStorage(app);
 const analytics = getAnalytics(app);
