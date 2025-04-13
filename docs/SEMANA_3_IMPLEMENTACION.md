@@ -1,69 +1,83 @@
 # Implementación de la Semana 3: Autenticación y Gestión de Usuarios
 
-Este documento detalla los pasos realizados para implementar las funcionalidades de la Semana 3 del proyecto LaFilmoteca.
+Este documento detalla la implementación actual de las funcionalidades de autenticación y gestión de usuarios en el proyecto LaFilmoteca.
 
-## Pasos Implementados
+## Funcionalidades Implementadas
 
-### 1. Creación de Rama de Desarrollo
+### 1. Configuración de Firebase Authentication
 
-- Se creó una nueva rama `feature/week3-user-profiles` a partir de la rama principal para implementar las nuevas funcionalidades.
+- **Inicialización de Firebase**: Configuración completa con variables de entorno para credenciales seguras.
+- **Métodos de Autenticación**: Implementación de autenticación por email/password.
+- **Gestión de Errores**: Sistema robusto de manejo de errores de autenticación con mensajes personalizados.
 
-### 2. Configuración de Firebase Authentication
+### 2. Sistema de Usuarios
 
-- **Inicialización de Firebase**: Se configuró Firebase en el proyecto utilizando las credenciales proporcionadas.
-- **Métodos de Autenticación**: Se habilitó la autenticación por email/password y Google.
-- **Configuración de Seguridad**: Se implementaron reglas de seguridad para proteger las rutas de autenticación.
+- **Modelo de Usuario**: Implementación de estructura de datos en Firestore con campos:
+  - uid
+  - email
+  - displayName
+  - photoURL
+  - role
+  - createdAt
+  - lastLogin
 
-### 3. Implementación de Componentes de Autenticación
+- **Roles de Usuario**: 
+  - guest: Usuario no autenticado
+  - user: Usuario registrado con acceso básico
+  - admin: Usuario con privilegios administrativos
 
-- **LoginForm**: Componente para manejar el inicio de sesión de usuarios con email/password y Google.
-- **RegisterForm**: Componente para el registro de nuevos usuarios con validación de campos.
-- **AuthLayout**: Componente que proporciona la estructura visual para las páginas de autenticación.
+### 3. Componentes de Autenticación
 
-### 4. Gestión de Estado de Autenticación
+- **LoginForm**: 
+  - Formulario de inicio de sesión con validación
+  - Manejo de errores de autenticación
+  - Interfaz de usuario adaptada al tema de la aplicación
 
-- **AuthContext**: Se implementó el contexto de autenticación para gestionar el estado global del usuario.
-- **AuthProvider**: Proveedor que encapsula la lógica de autenticación y expone métodos útiles.
-- **useAuth Hook**: Hook personalizado para acceder al contexto de autenticación desde cualquier componente.
+- **RegisterForm**:
+  - Registro de nuevos usuarios
+  - Validación de contraseñas
+  - Creación automática de perfil en Firestore
 
-### 5. Configuración de Firestore
+### 4. Contexto de Autenticación (AuthContext)
 
-- **Modelo de Usuarios**: Se diseñó la estructura de datos para almacenar información de usuarios.
-- **Reglas de Seguridad**: Se implementaron reglas de Firestore para proteger los datos de usuarios.
-- **Funciones de Utilidad**: Se crearon funciones para interactuar con la base de datos de usuarios.
+- **Estado Global**: 
+  - Gestión del usuario actual
+  - Control del rol de usuario
+  - Estado de carga y errores
 
-### 6. Sistema de Roles y Permisos
+- **Funcionalidades**:
+  - signUp: Registro de nuevos usuarios
+  - signIn: Inicio de sesión
+  - signOut: Cierre de sesión
+  - clearError: Limpieza de errores
 
-- **Definición de Roles**: Se implementaron roles de usuario (guest, user, admin).
-- **Rutas Protegidas**: Se crearon componentes HOC para proteger rutas según el rol del usuario.
-- **Middleware de Autorización**: Se implementó lógica para verificar permisos en las rutas protegidas.
+### 5. Seguridad y Persistencia
 
-## Estructura de Commits
+- **Manejo de Sesión**: 
+  - Persistencia de sesión con Firebase
+  - Actualización automática de lastLogin
 
-1. **Configuración inicial de Firebase**
-   - Inicialización de Firebase en el proyecto
-   - Configuración de métodos de autenticación
-   - Implementación de reglas de seguridad
+- **Reintentos y Recuperación**:
+  - Lógica de reintento para operaciones de Firestore
+  - Backoff exponencial para evitar sobrecarga
 
-2. **Implementación de componentes de autenticación**
-   - Creación de formularios de login y registro
-   - Implementación de AuthLayout
-   - Integración con Firebase Auth
+## Estructura de Archivos
 
-3. **Sistema de gestión de estado**
-   - Implementación de AuthContext y Provider
-   - Creación de useAuth hook
-   - Integración con componentes existentes
-
-4. **Configuración de base de datos**
-   - Implementación del modelo de usuarios
-   - Configuración de reglas de Firestore
-   - Creación de funciones de utilidad
+```
+src/
+  ├── contexts/
+  │   └── AuthContext.tsx    # Contexto de autenticación
+  ├── components/
+  │   └── ui/
+  │       └── AuthForms.tsx  # Formularios de autenticación
+  └── lib/
+      └── firebase.ts        # Configuración de Firebase
+```
 
 ## Próximos Pasos
 
 - Implementar recuperación de contraseña
-- Añadir autenticación
+- Añadir autenticación con Google
 - Mejorar la validación de formularios
 - Implementar sistema de notificaciones para eventos de autenticación
 - Crear panel de administración de usuarios
