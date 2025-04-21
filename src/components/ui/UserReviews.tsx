@@ -8,6 +8,7 @@ import StarRating from './StarRating';
 interface UserReviewsProps {
   userId: string;
   isCurrentUser?: boolean;
+  onCountChange: (count: number) => void;
 }
 
 interface ReviewWithMovie extends Review {
@@ -15,7 +16,7 @@ interface ReviewWithMovie extends Review {
   moviePoster: string;
 }
 
-const UserReviews = ({ userId, isCurrentUser = false }: UserReviewsProps) => {
+const UserReviews = ({ userId, isCurrentUser = false, onCountChange }: UserReviewsProps) => {
   const [reviews, setReviews] = useState<ReviewWithMovie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +29,7 @@ const UserReviews = ({ userId, isCurrentUser = false }: UserReviewsProps) => {
         
         // Get user reviews
         const userReviews = await getUserReviews(userId);
+        onCountChange(userReviews.length);
         
         // Fetch movie details for each review
         const reviewsWithMovies = await Promise.all(
@@ -91,9 +93,13 @@ const UserReviews = ({ userId, isCurrentUser = false }: UserReviewsProps) => {
   }
 
   return (
+    <div className="bg-filmoteca-dark p-6 rounded-lg shadow-md border border-filmoteca-gray border-opacity-30">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-xl font-semibold text-filmoteca-white">Mis reseñas</h2>
+    </div>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {reviews.map((review) => (
-        <div key={review.id} className="bg-filmoteca-dark p-4 rounded-lg shadow-md border border-filmoteca-gray border-opacity-30">
+        <div key={review.id} className="bg-filmoteca-gray bg-opacity-10 p-4 rounded-lg shadow-md border border-filmoteca-gray border-opacity-30">
           <div className="flex mb-3">
             <div className="w-16 h-24 flex-shrink-0 mr-3">
               {review.moviePoster ? (
@@ -146,6 +152,8 @@ const UserReviews = ({ userId, isCurrentUser = false }: UserReviewsProps) => {
         </div>
       ))}
     </div>
+    </div>
+
   );
 };
 

@@ -6,9 +6,10 @@ import { Collection } from '../../types/collections';
 interface UserCollectionsProps {
   userId: string;
   onCreateCollection?: () => void;
+  onCountChange: (count: number) => void;
 }
 
-const UserCollections = ({ userId, onCreateCollection }: UserCollectionsProps) => {
+const UserCollections = ({ userId, onCreateCollection, onCountChange }: UserCollectionsProps) => {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +24,7 @@ const UserCollections = ({ userId, onCreateCollection }: UserCollectionsProps) =
         setError(null);
         const userCollections = await getUserCollections(userId);
         setCollections(userCollections);
+        onCountChange(userCollections.length);
       } catch (err) {
         console.error('Error fetching collections:', err);
         setError('No se pudieron cargar las colecciones. Por favor, inténtalo de nuevo.');

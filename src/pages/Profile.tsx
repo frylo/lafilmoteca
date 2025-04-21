@@ -17,6 +17,7 @@ const Profile = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showCollectionForm, setShowCollectionForm] = useState(false);
   const [collectionsCount, setCollectionsCount] = useState(0);
+  const [reviewsCount, setReviewsCount] = useState(0);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -170,7 +171,7 @@ const Profile = () => {
           </div>
           <div className="bg-filmoteca-gray bg-opacity-20 p-4 rounded-lg">
             <h3 className="text-lg font-medium mb-2 text-filmoteca-white">Reseñas Escritas</h3>
-            <p className="text-2xl font-bold text-filmoteca-olive">0</p>
+            <p className="text-2xl font-bold text-filmoteca-olive">{reviewsCount}</p>
           </div>
           <div className="bg-filmoteca-gray bg-opacity-20 p-4 rounded-lg">
             <h3 className="text-lg font-medium mb-2 text-filmoteca-white">Colecciones</h3>
@@ -181,16 +182,6 @@ const Profile = () => {
       
       {/* User Collections */}
       <div className="mt-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-filmoteca-white">Mis Colecciones</h2>
-          <button
-            onClick={() => setShowCollectionForm(true)}
-            className="px-4 py-2 bg-filmoteca-olive text-filmoteca-dark rounded-md hover:bg-opacity-90 transition-colors duration-200"
-          >
-            Nueva Colección
-          </button>
-        </div>
-        
         {showCollectionForm && (
           <div className="mb-6">
             <CollectionForm
@@ -208,9 +199,8 @@ const Profile = () => {
       </div>
       
       {/* User Reviews */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold text-filmoteca-white mb-6">Mis Reseñas</h2>
-        <UserReviews userId={currentUser?.uid || ''} isCurrentUser={true} />
+      <div className="mt-8">
+        <UserReviews userId={currentUser?.uid || ''} isCurrentUser={true}  onCountChange={setReviewsCount}/>
       </div>
     </div>
   );
