@@ -34,9 +34,13 @@ export interface Review {
   userId: string;
   userName: string;
   rating: number; // 1-5 stars
-  comment: string;
+  title: string;
+  content: string;
   createdAt: Date;
   updatedAt?: Date;
+  isApproved: boolean;
+  likes: number;
+  userPhotoURL?: string;
 }
 
 // Auth related types

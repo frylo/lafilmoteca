@@ -4,6 +4,7 @@ import { getMovieDetails } from '../lib/tmdb';
 import { Movie } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import AddToCollection from '../components/ui/AddToCollection';
+import ReviewList from '../components/ui/ReviewList';
 
 const MovieDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -163,6 +164,13 @@ const MovieDetails = () => {
           )}
         </div>
       </div>
+      
+      {/* Reviews Section */}
+      {movie && id && (
+        <div className="mt-12">
+          <ReviewList movieId={id} movieTitle={movie.title} />
+        </div>
+      )}
     </div>
   );
 };

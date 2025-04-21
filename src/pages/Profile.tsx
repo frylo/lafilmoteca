@@ -4,6 +4,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import UserCollections from '../components/ui/UserCollections';
 import CollectionForm from '../components/ui/CollectionForm';
+import UserReviews from '../components/ui/UserReviews';
 
 const Profile = () => {
   const { currentUser } = useAuth();
@@ -178,20 +179,39 @@ const Profile = () => {
         </div>
       </div>
       
-      {showCollectionForm ? (
-        <CollectionForm 
-          userId={currentUser?.uid || ''}
-          onSuccess={() => {
-            setShowCollectionForm(false);
-          }}
-          onCancel={() => setShowCollectionForm(false)}
-        />
-      ) : (
-        <UserCollections 
-          userId={currentUser?.uid || ''}
-          onCreateCollection={() => setShowCollectionForm(true)}
-        />
-      )}
+      {/* User Collections */}
+      <div className="mt-8">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-filmoteca-white">Mis Colecciones</h2>
+          <button
+            onClick={() => setShowCollectionForm(true)}
+            className="px-4 py-2 bg-filmoteca-olive text-filmoteca-dark rounded-md hover:bg-opacity-90 transition-colors duration-200"
+          >
+            Nueva Colección
+          </button>
+        </div>
+        
+        {showCollectionForm && (
+          <div className="mb-6">
+            <CollectionForm
+              userId={currentUser?.uid || ''}
+              onSuccess={() => {
+                setShowCollectionForm(false);
+                // Trigger collection refresh
+              }}
+              onCancel={() => setShowCollectionForm(false)}
+            />
+          </div>
+        )}
+        
+        <UserCollections userId={currentUser?.uid || ''} onCountChange={setCollectionsCount} />
+      </div>
+      
+      {/* User Reviews */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold text-filmoteca-white mb-6">Mis Reseñas</h2>
+        <UserReviews userId={currentUser?.uid || ''} isCurrentUser={true} />
+      </div>
     </div>
   );
 };
