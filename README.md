@@ -64,21 +64,46 @@ npm run dev
 yarn dev
 ```
 
-## Build for Production
-
-```bash
-npm run build
-# or
-yarn build
-```
-
 ## Deployment
 
-The project is configured for Firebase Hosting. To deploy:
+### Despliegue Automático
 
+El despliegue es completamente automático y se realiza a través de GitHub Actions:
+
+1. Los cambios se realizan en ramas de feature
+2. Se hace merge de la rama feature a `main`
+3. El push a `main` activa automáticamente el workflow de GitHub Actions
+4. GitHub Actions:
+   - Instala las dependencias
+   - Construye la aplicación
+   - Despliega a Firebase Hosting
+
+No es necesario ejecutar ningún comando manual para el despliegue.
+
+### Configuración Requerida
+
+Para que el despliegue automático funcione, necesitas:
+
+1. Configurar los siguientes secrets en GitHub:
+   - `FIREBASE_SERVICE_ACCOUNT`: La clave de servicio de Firebase en formato JSON
+
+2. Tener configurado el proyecto en Firebase Hosting
+
+## Useful Commands
+
+### Development
 ```bash
+# Start development server
+npm run dev
+
+# Run linter
+npm run lint
+
+# Build for production
 npm run build
-firebase deploy
+
+# Preview production build
+npm run preview
 ```
 
 ## License
