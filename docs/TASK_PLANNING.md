@@ -60,5 +60,4 @@ Este documento presenta una planificación detallada de las tareas a realizar pa
 
 - Configurar entorno de producción
 - Implementar medidas de seguridad adicionales
-- Optimizar tamaño de bundle
 - Completar documentación técnica

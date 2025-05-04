@@ -7,18 +7,18 @@ import { useAuth } from '../../contexts/AuthContext';
 
 interface ReviewListProps {
   movieId: string;
-  movieTitle: string;
+  movieTitle?: string;
 }
 
 type SortOption = 'newest' | 'oldest' | 'highest' | 'lowest' | 'most-liked';
 
-const ReviewList = ({ movieId, movieTitle }: ReviewListProps) => {
+const ReviewList = ({ movieId }: ReviewListProps) => {
   const { currentUser } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [editingReview, setEditingReview] = useState<Review | undefined>(undefined);
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [userHasReviewed, setUserHasReviewed] = useState(false);
 
@@ -75,7 +75,7 @@ const ReviewList = ({ movieId, movieTitle }: ReviewListProps) => {
 
   const handleReviewSuccess = () => {
     setShowForm(false);
-    setEditingReview(null);
+    setEditingReview(undefined);
     fetchReviews();
   };
 
@@ -127,12 +127,11 @@ const ReviewList = ({ movieId, movieTitle }: ReviewListProps) => {
         <div className="mb-6">
           <ReviewForm
             movieId={movieId}
-            movieTitle={movieTitle}
-            existingReview={editingReview || undefined}
+            existingReview={editingReview}
             onSuccess={handleReviewSuccess}
             onCancel={() => {
               setShowForm(false);
-              setEditingReview(null);
+              setEditingReview(undefined);
             }}
           />
         </div>

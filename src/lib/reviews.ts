@@ -6,14 +6,12 @@ import {
   updateDoc, 
   deleteDoc, 
   getDocs, 
-  getDoc, 
   query, 
   where, 
   orderBy,
   limit,
   serverTimestamp,
   increment,
-  Timestamp
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { Review } from '../types';
