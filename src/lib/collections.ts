@@ -69,6 +69,7 @@ export const updateCollection = async (collectionId: string, collectionData: Par
   try {
     const collectionRef = doc(db, 'collections', collectionId);
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = {
       updatedAt: serverTimestamp()
     };

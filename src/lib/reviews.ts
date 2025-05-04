@@ -107,6 +107,7 @@ export const updateReview = async (reviewId: string, reviewData: Partial<Review>
   try {
     const reviewRef = doc(db, 'reviews', reviewId);
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updateData: any = {
       updatedAt: serverTimestamp()
     };
