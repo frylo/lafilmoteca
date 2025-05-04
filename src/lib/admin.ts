@@ -52,7 +52,7 @@ export const deactivateUser = async (userId: string): Promise<void> => {
 export const getPendingReviews = async (): Promise<Review[]> => {
   try {
     const reviewsRef = collection(db, 'reviews');
-    const pendingQuery = query(reviewsRef, where('isApproved', '==', null));
+    const pendingQuery = query(reviewsRef, where('isApproved', '==', false));
     const snapshot = await getDocs(pendingQuery);
     
     return snapshot.docs.map(doc => ({
@@ -99,7 +99,7 @@ export const getAdminStats = async () => {
     const totalReviews = reviewsSnapshot.size;
     
     // Obtener conteo de reseñas pendientes
-    const pendingQuery = query(reviewsRef, where('isApproved', '==', null));
+    const pendingQuery = query(reviewsRef, where('isApproved', '==', false));
     const pendingSnapshot = await getDocs(pendingQuery);
     const pendingReviews = pendingSnapshot.size;
     
