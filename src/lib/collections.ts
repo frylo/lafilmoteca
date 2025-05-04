@@ -6,13 +6,17 @@ import {
   updateDoc, 
   deleteDoc, 
   getDocs, 
+  getDoc, 
   query, 
   where, 
   serverTimestamp,
   increment,
+  arrayUnion,
+  arrayRemove,
+  Timestamp
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Collection } from '../types/collections';
+import { Collection, CollectionMovie } from '../types/collections';
 
 // Get all collections for a user
 export const getUserCollections = async (userId: string): Promise<Collection[]> => {
