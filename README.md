@@ -2,6 +2,8 @@
 
 A modern web application for movie enthusiasts to discover, search, and manage their personal film collection.
 
+> **Test Deployment**: This line was added to test the automatic deployment process.
+
 ## Features
 
 - Search for movies using The Movie Database (TMDB) API
