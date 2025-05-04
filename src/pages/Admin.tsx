@@ -2,13 +2,13 @@ import React, { useState, Suspense } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import AdminLayout from '../components/admin/AdminLayout';
-import UserManagement from '../components/admin/UserManagement';
-import ReviewModeration from '../components/admin/ReviewModeration';
-import StatsPanel from '../components/admin/StatsPanel';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
-// Importación dinámica del Dashboard
+// Importación dinámica de los componentes del panel de administración
 const Dashboard = React.lazy(() => import('../components/admin/Dashboard'));
+const UserManagement = React.lazy(() => import('../components/admin/UserManagement'));
+const ReviewModeration = React.lazy(() => import('../components/admin/ReviewModeration'));
+const StatsPanel = React.lazy(() => import('../components/admin/StatsPanel'));
 
 // Tabs disponibles en el panel de administración
 const TABS = {
