@@ -18,7 +18,7 @@ interface ReviewFormData {
   content: string;
 }
 
-const ReviewForm = ({ movieId, movieTitle, existingReview, onSuccess, onCancel }: ReviewFormProps) => {
+const ReviewForm = ({ movieId, existingReview, onSuccess, onCancel }: ReviewFormProps) => {
   const { currentUser } = useAuth();
   const [rating, setRating] = useState(existingReview?.rating || 0);
   const [isSubmitting, setIsSubmitting] = useState(false);
