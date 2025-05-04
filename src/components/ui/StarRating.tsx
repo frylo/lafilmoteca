@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 interface StarRatingProps {
   initialRating?: number;
-  onChange: (rating: number) => void;
+  onChange?: (rating: number) => void;
   size?: 'sm' | 'md' | 'lg';
   readonly?: boolean;
 }
@@ -14,7 +14,7 @@ const StarRating = ({ initialRating = 0, onChange, size = 'md', readonly = false
   const handleClick = (selectedRating: number) => {
     if (readonly) return;
     setRating(selectedRating);
-    onChange(selectedRating);
+    onChange?.(selectedRating);
   };
 
   const handleMouseEnter = (hoveredRating: number) => {

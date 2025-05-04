@@ -67,7 +67,7 @@ const ReviewForm = ({ movieId, movieTitle, existingReview, onSuccess, onCancel }
           rating,
           title: data.title,
           content: data.content,
-          isApproved: true
+          isApproved: false
         });
       }
 
@@ -82,32 +82,38 @@ const ReviewForm = ({ movieId, movieTitle, existingReview, onSuccess, onCancel }
 
   return (
     <div className="bg-filmoteca-dark p-6 rounded-lg shadow-md border border-filmoteca-gray border-opacity-30">
-      <h3 className="text-xl font-semibold mb-4">
-        {existingReview ? 'Editar reseña' : `Escribir reseña para ${movieTitle}`}
+      <h3 className="text-xl font-semibold mb-4 text-filmoteca-white">
+        {existingReview ? 'Editar reseña' : 'Escribir reseña'}
       </h3>
 
       {error && (
-        <div className="bg-red-900 bg-opacity-30 border border-red-800 text-filmoteca-white p-4 rounded-lg mb-4">
+        <div className="bg-red-900 bg-opacity-30 border border-red-800 text-filmoteca-white p-3 rounded mb-4">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Tu valoración</label>
-          <StarRating initialRating={rating} onChange={setRating} size="lg" />
+          <label className="block text-sm font-medium mb-2 text-filmoteca-light">
+            Valoración
+          </label>
+          <StarRating
+            initialRating={rating}
+            onChange={setRating}
+            size="lg"
+          />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="title" className="block text-sm font-medium mb-2">
-            Título de tu reseña
+          <label htmlFor="title" className="block text-sm font-medium mb-2 text-filmoteca-light">
+            Título
           </label>
           <input
-            id="title"
             type="text"
-            className="w-full bg-filmoteca-gray bg-opacity-20 border border-filmoteca-gray border-opacity-30 rounded-md p-2 text-filmoteca-white focus:outline-none focus:ring-2 focus:ring-filmoteca-olive"
-            placeholder="Resumen de tu opinión"
-            {...register('title', { required: 'El título es obligatorio', maxLength: { value: 100, message: 'El título no puede tener más de 100 caracteres' } })}
+            id="title"
+            className="form-input"
+            placeholder="Título de tu reseña..."
+            {...register('title', { required: 'El título es obligatorio' })}
           />
           {errors.title && (
             <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
@@ -115,13 +121,13 @@ const ReviewForm = ({ movieId, movieTitle, existingReview, onSuccess, onCancel }
         </div>
 
         <div className="mb-4">
-          <label htmlFor="content" className="block text-sm font-medium mb-2">
+          <label htmlFor="content" className="block text-sm font-medium mb-2 text-filmoteca-light">
             Tu reseña
           </label>
           <textarea
             id="content"
             rows={5}
-            className="w-full bg-filmoteca-gray bg-opacity-20 border border-filmoteca-gray border-opacity-30 rounded-md p-2 text-filmoteca-white focus:outline-none focus:ring-2 focus:ring-filmoteca-olive"
+            className="form-input"
             placeholder="Comparte tu opinión sobre la película..."
             {...register('content', { required: 'El contenido es obligatorio', minLength: { value: 10, message: 'La reseña debe tener al menos 10 caracteres' } })}
           />
@@ -130,18 +136,24 @@ const ReviewForm = ({ movieId, movieTitle, existingReview, onSuccess, onCancel }
           )}
         </div>
 
+        {!existingReview && (
+          <div className="mb-4 bg-filmoteca-olive bg-opacity-20 border border-filmoteca-olive border-opacity-30 p-3 rounded text-filmoteca-light text-sm">
+            <p>Tu reseña será revisada por un moderador antes de ser publicada.</p>
+          </div>
+        )}
+
         <div className="flex justify-end space-x-3">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-filmoteca-gray text-filmoteca-white rounded-md hover:bg-filmoteca-gray hover:bg-opacity-20 transition-colors duration-200"
+            className="btn-secondary"
             disabled={isSubmitting}
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-filmoteca-olive text-filmoteca-dark rounded-md hover:bg-opacity-90 transition-colors duration-200 flex items-center"
+            className="btn-primary flex items-center"
             disabled={isSubmitting}
           >
             {isSubmitting ? (

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { 
   User as FirebaseUser,
@@ -62,7 +63,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         photoURL: firebaseUser.photoURL,
         role: 'user', // Default role for new users
         createdAt: serverTimestamp(),
-        lastLogin: serverTimestamp()
+        lastLogin: serverTimestamp(),
+        isActive: true,
       });
       
     } catch (err: any) {
@@ -174,11 +176,13 @@ const signIn = async (email: string, password: string) => {
                   uid: firebaseUser.uid,
                   email: firebaseUser.email || '',
                   displayName: userData.displayName || firebaseUser.displayName || '',
-                  photoURL: userData.photoURL || firebaseUser.photoURL || ''
+                  photoURL: userData.photoURL || firebaseUser.photoURL || '',
+                  role: userData.role || 'user', // Default role for new users
+                  isActive: userData.isActive || true
                 });
                 setUserRole(userData.role || 'user');
                 success = true;
-                console.log("fetchUserDataWithRetry: Éxito al obtener los datos del usuario");
+                console.log("fetchUserDataWithRetry: Éxito al obtener los datos del usuario", userData);
               } else {
                 console.log("fetchUserDataWithRetry: El documento del usuario no existe. Creando uno nuevo.");
                 // If user document doesn't exist in Firestore, create it
@@ -189,14 +193,17 @@ const signIn = async (email: string, password: string) => {
                   photoURL: firebaseUser.photoURL,
                   role: 'user', // Default role
                   createdAt: serverTimestamp(),
-                  lastLogin: serverTimestamp()
+                  lastLogin: serverTimestamp(),
+                  isActive: true
                 });
                 
                 setCurrentUser({
                   uid: firebaseUser.uid,
                   email: firebaseUser.email || '',
                   displayName: firebaseUser.displayName || '',
-                  photoURL: firebaseUser.photoURL || ''
+                  photoURL: firebaseUser.photoURL || '',
+                  role: 'user', // Default role
+                  isActive: true
                 });
                 setUserRole('user');
                 success = true;

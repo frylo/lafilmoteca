@@ -7,6 +7,7 @@ import Profile from '../pages/Profile';
 import CollectionDetails from '../pages/CollectionDetails';
 import Admin from '../pages/Admin';
 import Layout from '../components/layout/Layout';
+import { JSX } from 'react';
 
 // Rutas protegidas que requieren autenticación
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {

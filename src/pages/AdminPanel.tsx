@@ -1,14 +1,12 @@
 import React, { useState, Suspense } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
 import AdminLayout from '../components/admin/AdminLayout';
+const Dashboard = React.lazy(() => import('../components/admin/Dashboard'));
+import { Navigate } from 'react-router-dom';
 import UserManagement from '../components/admin/UserManagement';
 import ReviewModeration from '../components/admin/ReviewModeration';
 import StatsPanel from '../components/admin/StatsPanel';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-
-// Importación dinámica del Dashboard
-const Dashboard = React.lazy(() => import('../components/admin/Dashboard'));
 
 // Tabs disponibles en el panel de administración
 const TABS = {
@@ -18,7 +16,7 @@ const TABS = {
   STATS: 'stats'
 };
 
-const Admin = () => {
+const AdminPanel: React.FC = () => {
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState(TABS.DASHBOARD);
 
@@ -52,4 +50,4 @@ const Admin = () => {
   );
 };
 
-export default Admin;
+export default AdminPanel;

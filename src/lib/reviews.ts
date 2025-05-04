@@ -25,6 +25,7 @@ export const getMovieReviews = async (movieId: string, sortBy: string = 'created
     const q = query(
       reviewsRef, 
       where('movieId', '==', movieId),
+      where('isApproved', '==', true),
       orderBy(sortBy, sortOrder),
       limit(limitCount)
     );
@@ -42,7 +43,7 @@ export const getMovieReviews = async (movieId: string, sortBy: string = 'created
         content: data.content,
         createdAt: data.createdAt?.toDate() || new Date(),
         updatedAt: data.updatedAt?.toDate(),
-        isApproved: data.isApproved || true,
+        isApproved: data.isApproved,
         likes: data.likes || 0,
         userPhotoURL: data.userPhotoURL || ''
       };
@@ -91,7 +92,7 @@ export const createReview = async (reviewData: Omit<Review, 'id' | 'createdAt' |
       ...reviewData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      isApproved: true, // Default to approved, can be changed by admin
+      isApproved: false,
       likes: 0
     };
     

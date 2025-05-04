@@ -3,11 +3,7 @@ import { searchMovies } from '../../lib/tmdb';
 import { Movie } from '../../types';
 import MovieResults from './MovieResults';
 
-interface MovieSearchProps {
-  onSelectMovie?: (movie: Movie) => void;
-}
-
-const MovieSearch = ({ onSelectMovie }: MovieSearchProps) => {
+const MovieSearch = () => {
   const [query, setQuery] = useState('');
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,12 +35,6 @@ const MovieSearch = ({ onSelectMovie }: MovieSearchProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleSearch(1);
-  };
-
-  const handleMovieClick = (movie: Movie) => {
-    if (onSelectMovie) {
-      onSelectMovie(movie);
-    }
   };
 
   const handlePageChange = (newPage: number) => {
