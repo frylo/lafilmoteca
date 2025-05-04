@@ -59,9 +59,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="card">
-      
-      {/* Información de actividad */}
-      <div className="bg-filmoteca-dark rounded-lg shadow p-6 mb-8 border border-filmoteca-gray border-opacity-30">
+      <div className="bg-filmoteca-dark rounded-lg shadow p-6 border border-filmoteca-gray border-opacity-30">
         <h3 className="text-xl font-semibold mb-4 text-filmoteca-white">Información de Actividad</h3>
         <div className="space-y-4">
           <p className="text-filmoteca-light">

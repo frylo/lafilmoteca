@@ -51,7 +51,6 @@ Este documento presenta una planificación detallada de las tareas a realizar pa
 - Desarrollar interfaz para el panel de administración
 - Implementar gestión de usuarios (listar, editar roles, eliminar)
 - Crear sistema de moderación de reseñas
-- Implementar estadísticas generales de la aplicación
 - Optimizar rendimiento de la aplicación
 - Implementar lazy loading para componentes pesados
 - Realizar pruebas de usabilidad

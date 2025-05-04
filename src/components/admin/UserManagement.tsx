@@ -76,7 +76,7 @@ const UserManagement: React.FC = () => {
 
   return (
     <div className="card">
-      <h2 className="text-2xl font-bold mb-6 text-filmoteca-white">Gestión de Usuarios</h2>
+      <h2 className="text-2xl font-bold p-6 text-filmoteca-white">Gestión de Usuarios</h2>
       
       {error && (
         <div className="bg-red-900 bg-opacity-30 border border-red-800 text-filmoteca-white p-3 rounded mb-4">
@@ -84,8 +84,7 @@ const UserManagement: React.FC = () => {
         </div>
       )}
       
-      {/* Búsqueda */}
-      <div className="mb-6">
+      <div className="p-6 mb-6">
         <input
           type="text"
           placeholder="Buscar por nombre o email..."
@@ -95,8 +94,7 @@ const UserManagement: React.FC = () => {
         />
       </div>
       
-      {/* Tabla de usuarios */}
-      <div className="overflow-x-auto">
+      <div className="p-6 overflow-x-auto">
         <table className="min-w-full">
           <thead>
             <tr className="border-b border-filmoteca-gray border-opacity-30">

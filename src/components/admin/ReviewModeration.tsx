@@ -54,7 +54,7 @@ const ReviewModeration: React.FC = () => {
 
   return (
     <div className="card">
-      <h2 className="text-2xl font-bold mb-6 text-filmoteca-white">Moderación de Reseñas</h2>
+      <h2 className="text-2xl font-bold p-6 text-filmoteca-white">Moderación de Reseñas</h2>
       
       {error && (
         <div className="bg-red-900 bg-opacity-30 border border-red-800 text-filmoteca-white p-3 rounded mb-4">
@@ -62,7 +62,6 @@ const ReviewModeration: React.FC = () => {
         </div>
       )}
       
-      {/* Lista de reseñas pendientes */}
       <div className="space-y-6">
         {currentReviews.map(review => (
           <div key={review.id} className="bg-filmoteca-dark p-6 rounded-lg shadow border border-filmoteca-gray border-opacity-30">

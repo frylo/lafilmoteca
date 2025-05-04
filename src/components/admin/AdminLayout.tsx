@@ -17,7 +17,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
     { id: 'dashboard', label: 'Dashboard', icon: 'chart-pie' },
     { id: 'users', label: 'Usuarios', icon: 'users' },
     { id: 'reviews', label: 'Reseñas', icon: 'star' },
-    { id: 'stats', label: 'Estadísticas', icon: 'chart-bar' }
+    // { id: 'stats', label: 'Estadísticas', icon: 'chart-bar' }
   ];
 
   return (
