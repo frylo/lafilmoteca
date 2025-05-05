@@ -14,6 +14,7 @@ interface UserReviewsProps {
 interface ReviewWithMovie extends Review {
   movieTitle: string;
   moviePoster: string;
+  title: string;
 }
 
 const UserReviews = ({ userId, isCurrentUser = false, onCountChange }: UserReviewsProps) => {
@@ -39,14 +40,16 @@ const UserReviews = ({ userId, isCurrentUser = false, onCountChange }: UserRevie
               return {
                 ...review,
                 movieTitle: movie.title,
-                moviePoster: movie.poster
+                moviePoster: movie.poster,
+                title: review.title || 'Sin título'
               };
             } catch (err) {
               console.error(`Error fetching movie ${review.movieId}:`, err);
               return {
                 ...review,
                 movieTitle: 'Película no disponible',
-                moviePoster: ''
+                moviePoster: '',
+                title: review.title || 'Sin título'
               };
             }
           })

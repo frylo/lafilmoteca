@@ -67,7 +67,8 @@ const ReviewForm = ({ movieId, existingReview, onSuccess, onCancel }: ReviewForm
           rating,
           title: data.title,
           content: data.content,
-          isApproved: false
+          isApproved: false,
+          likes: 0
         });
       }
 
