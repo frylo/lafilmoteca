@@ -119,3 +119,172 @@ export const getMovieDetails = async (movieId: string): Promise<Movie> => {
     throw error;
   }
 };
+
+/**
+ * Get popular movies from TMDB API
+ * @param page Page number for pagination (default: 1)
+ * @returns Promise with popular movies
+ */
+export const getPopularMovies = async (page: number = 1): Promise<{ movies: Movie[], totalPages: number }> => {
+  if (!TMDB_API_KEY) {
+    throw new Error('TMDB API key is not defined. Please add VITE_TMDB_API_KEY to your environment variables.');
+  }
+
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&page=${page}&language=es-ES`
+    );
+
+    if (!response.ok) {
+      throw new Error(`TMDB API error: ${response.status}`);
+    }
+
+    const data: TMDBMovieSearchResponse = await response.json();
+    
+    // Transform TMDB movie format to our app's Movie format
+    const movies: Movie[] = data.results.map(movie => ({
+      id: movie.id.toString(),
+      title: movie.title,
+      originalTitle: movie.original_title,
+      poster: movie.poster_path ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}` : '',
+      year: movie.release_date ? new Date(movie.release_date).getFullYear() : 0,
+      director: '', // TMDB doesn't provide director in popular movies
+      plot: movie.overview,
+      rating: movie.vote_average,
+    }));
+
+    return {
+      movies,
+      totalPages: data.total_pages
+    };
+  } catch (error) {
+    console.error('Error getting popular movies:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get top rated movies from TMDB API
+ * @param page Page number for pagination (default: 1)
+ * @returns Promise with top rated movies
+ */
+export const getTopRatedMovies = async (page: number = 1): Promise<{ movies: Movie[], totalPages: number }> => {
+  if (!TMDB_API_KEY) {
+    throw new Error('TMDB API key is not defined. Please add VITE_TMDB_API_KEY to your environment variables.');
+  }
+
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/movie/top_rated?api_key=${TMDB_API_KEY}&page=${page}&language=es-ES`
+    );
+
+    if (!response.ok) {
+      throw new Error(`TMDB API error: ${response.status}`);
+    }
+
+    const data: TMDBMovieSearchResponse = await response.json();
+    
+    const movies: Movie[] = data.results.map(movie => ({
+      id: movie.id.toString(),
+      title: movie.title,
+      originalTitle: movie.original_title,
+      poster: movie.poster_path ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}` : '',
+      year: movie.release_date ? new Date(movie.release_date).getFullYear() : 0,
+      director: '',
+      plot: movie.overview,
+      rating: movie.vote_average,
+    }));
+
+    return {
+      movies,
+      totalPages: data.total_pages
+    };
+  } catch (error) {
+    console.error('Error getting top rated movies:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get upcoming movies from TMDB API
+ * @param page Page number for pagination (default: 1)
+ * @returns Promise with upcoming movies
+ */
+export const getUpcomingMovies = async (page: number = 1): Promise<{ movies: Movie[], totalPages: number }> => {
+  if (!TMDB_API_KEY) {
+    throw new Error('TMDB API key is not defined. Please add VITE_TMDB_API_KEY to your environment variables.');
+  }
+
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/movie/upcoming?api_key=${TMDB_API_KEY}&page=${page}&language=es-ES`
+    );
+
+    if (!response.ok) {
+      throw new Error(`TMDB API error: ${response.status}`);
+    }
+
+    const data: TMDBMovieSearchResponse = await response.json();
+    
+    const movies: Movie[] = data.results.map(movie => ({
+      id: movie.id.toString(),
+      title: movie.title,
+      originalTitle: movie.original_title,
+      poster: movie.poster_path ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}` : '',
+      year: movie.release_date ? new Date(movie.release_date).getFullYear() : 0,
+      director: '',
+      plot: movie.overview,
+      rating: movie.vote_average,
+    }));
+
+    return {
+      movies,
+      totalPages: data.total_pages
+    };
+  } catch (error) {
+    console.error('Error getting upcoming movies:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get now playing movies from TMDB API
+ * @param page Page number for pagination (default: 1)
+ * @returns Promise with now playing movies
+ */
+export const getNowPlayingMovies = async (page: number = 1): Promise<{ movies: Movie[], totalPages: number }> => {
+  if (!TMDB_API_KEY) {
+    throw new Error('TMDB API key is not defined. Please add VITE_TMDB_API_KEY to your environment variables.');
+  }
+
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/movie/now_playing?api_key=${TMDB_API_KEY}&page=${page}&language=es-ES`
+    );
+
+    if (!response.ok) {
+      throw new Error(`TMDB API error: ${response.status}`);
+    }
+
+    const data: TMDBMovieSearchResponse = await response.json();
+    
+    const movies: Movie[] = data.results.map(movie => ({
+      id: movie.id.toString(),
+      title: movie.title,
+      originalTitle: movie.original_title,
+      poster: movie.poster_path ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}` : '',
+      year: movie.release_date ? new Date(movie.release_date).getFullYear() : 0,
+      director: '',
+      plot: movie.overview,
+      rating: movie.vote_average,
+    }));
+
+    return {
+      movies,
+      totalPages: data.total_pages
+    };
+  } catch (error) {
+    console.error('Error getting now playing movies:', error);
+    throw error;
+  }
+};

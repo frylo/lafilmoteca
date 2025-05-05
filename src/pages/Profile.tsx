@@ -3,7 +3,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import UserCollections from '../components/ui/UserCollections';
-import CollectionForm from '../components/ui/CollectionForm';
 import UserReviews from '../components/ui/UserReviews';
 
 const Profile = () => {
@@ -15,7 +14,6 @@ const Profile = () => {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [showCollectionForm, setShowCollectionForm] = useState(false);
   const [collectionsCount, setCollectionsCount] = useState(0);
   const [reviewsCount, setReviewsCount] = useState(0);
 
@@ -182,20 +180,10 @@ const Profile = () => {
       
       {/* User Collections */}
       <div className="mt-8">
-        {showCollectionForm && (
-          <div className="mb-6">
-            <CollectionForm
-              userId={currentUser?.uid || ''}
-              onSuccess={() => {
-                setShowCollectionForm(false);
-                // Trigger collection refresh
-              }}
-              onCancel={() => setShowCollectionForm(false)}
-            />
-          </div>
-        )}
-        
-        <UserCollections userId={currentUser?.uid || ''} onCountChange={setCollectionsCount} />
+        <UserCollections 
+          userId={currentUser?.uid || ''} 
+          onCountChange={setCollectionsCount}
+        />
       </div>
       
       {/* User Reviews */}

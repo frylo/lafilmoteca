@@ -10,6 +10,7 @@ import {
   where, 
   serverTimestamp,
   increment,
+  getDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { Collection } from '../types/collections';
@@ -109,6 +110,17 @@ export const deleteCollection = async (collectionId: string): Promise<void> => {
 // Add a movie to a collection
 export const addMovieToCollection = async (collectionId: string, movieId: string): Promise<void> => {
   try {
+    // Get collection details to verify ownership
+    const collectionRef = doc(db, 'collections', collectionId);
+    const collectionDoc = await getDoc(collectionRef);
+    
+    if (!collectionDoc.exists()) {
+      throw new Error('La colección no existe');
+    }
+    
+    const collectionData = collectionDoc.data();
+    const userId = collectionData.userId;
+    
     // Check if movie already exists in collection
     const collectionMoviesRef = collection(db, 'collectionMovies');
     const q = query(
@@ -123,11 +135,11 @@ export const addMovieToCollection = async (collectionId: string, movieId: string
       await addDoc(collectionMoviesRef, {
         collectionId,
         movieId,
+        userId,
         addedAt: serverTimestamp()
       });
       
       // Update movie count in collection
-      const collectionRef = doc(db, 'collections', collectionId);
       await updateDoc(collectionRef, {
         movieCount: increment(1),
         updatedAt: serverTimestamp()
