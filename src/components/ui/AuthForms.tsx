@@ -13,11 +13,13 @@ export const LoginForm = () => {
     
     try {
       await signIn(email, password);
-      // Reset form
+      // Solo resetear el formulario si no hay error
+      if (!error) {
       setEmail('');
       setPassword('');
+      }
     } catch (err) {
-      // Error is handled in the AuthContext
+      // El error ya está manejado en el AuthContext
       console.error('Login error:', err);
     }
   };

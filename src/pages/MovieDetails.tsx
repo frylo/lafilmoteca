@@ -5,6 +5,7 @@ import { Movie } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import AddToCollection from '../components/ui/AddToCollection';
 import ReviewList from '../components/ui/ReviewList';
+import ReviewForm from '../components/ui/ReviewForm';
 
 const MovieDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +13,7 @@ const MovieDetails = () => {
   const [movie, setMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
@@ -168,7 +170,33 @@ const MovieDetails = () => {
       {/* Reviews Section */}
       {movie && id && (
         <div className="mt-12">
-          <ReviewList movieId={id} movieTitle={movie.title} />
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-filmoteca-white">Reseñas</h2>
+            {currentUser && !showReviewForm && (
+              <button
+                onClick={() => setShowReviewForm(true)}
+                className="btn-primary"
+              >
+                Escribir una reseña
+              </button>
+            )}
+          </div>
+
+          {showReviewForm && (
+            <div className="mb-8">
+              <ReviewForm
+                movieId={id}
+                movieTitle={movie.title}
+                onSuccess={() => {
+                  setShowReviewForm(false);
+                  // Aquí podrías refrescar la lista de reseñas si es necesario
+                }}
+                onCancel={() => setShowReviewForm(false)}
+              />
+            </div>
+          )}
+
+          <ReviewList movieId={id} />
         </div>
       )}
     </div>

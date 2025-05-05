@@ -8,130 +8,61 @@ import {
   getDocs, 
   query, 
   where, 
-  orderBy,
   limit,
   serverTimestamp,
   increment,
+  Timestamp
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Review } from '../types';
+import { Review } from '../types/review';
 
 // Get all reviews for a movie
-export const getMovieReviews = async (movieId: string, sortBy: string = 'createdAt', sortOrder: 'asc' | 'desc' = 'desc', limitCount: number = 20): Promise<Review[]> => {
-  try {
-    const reviewsRef = collection(db, 'reviews');
-    const q = query(
-      reviewsRef, 
-      where('movieId', '==', movieId),
-      where('isApproved', '==', true),
-      orderBy(sortBy, sortOrder),
-      limit(limitCount)
-    );
-    const querySnapshot = await getDocs(q);
-    
-    return querySnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        movieId: data.movieId,
-        userId: data.userId,
-        userName: data.userName,
-        rating: data.rating,
-        title: data.title || '',
-        content: data.content,
-        createdAt: data.createdAt?.toDate() || new Date(),
-        updatedAt: data.updatedAt?.toDate(),
-        isApproved: data.isApproved,
-        likes: data.likes || 0,
-        userPhotoURL: data.userPhotoURL || ''
-      };
-    });
-  } catch (error) {
-    console.error('Error getting movie reviews:', error);
-    throw error;
-  }
+export const getMovieReviews = async (movieId: string, limitCount: number = 20): Promise<Review[]> => {
+  const reviewsRef = collection(db, 'reviews');
+  const q = query(
+    reviewsRef,
+    where('movieId', '==', movieId),
+    limit(limitCount)
+  );
+  
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as Review));
 };
 
 // Get all reviews by a user
 export const getUserReviews = async (userId: string): Promise<Review[]> => {
-  try {
-    const reviewsRef = collection(db, 'reviews');
-    const q = query(reviewsRef, where('userId', '==', userId), orderBy('createdAt', 'desc'));
-    const querySnapshot = await getDocs(q);
-    
-    return querySnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        movieId: data.movieId,
-        userId: data.userId,
-        userName: data.userName,
-        rating: data.rating,
-        title: data.title || '',
-        content: data.content,
-        createdAt: data.createdAt?.toDate() || new Date(),
-        updatedAt: data.updatedAt?.toDate(),
-        isApproved: data.isApproved || true,
-        likes: data.likes || 0,
-        userPhotoURL: data.userPhotoURL || ''
-      };
-    });
-  } catch (error) {
-    console.error('Error getting user reviews:', error);
-    throw error;
-  }
+  const reviewsRef = collection(db, 'reviews');
+  const q = query(reviewsRef, where('userId', '==', userId));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  } as Review));
 };
 
 // Create a new review
-export const createReview = async (reviewData: Omit<Review, 'id' | 'createdAt' | 'updatedAt' | 'likes'>): Promise<string> => {
-  try {
-    const reviewsRef = collection(db, 'reviews');
-    const newReview = {
-      ...reviewData,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      isApproved: false,
-      likes: 0
-    };
-    
-    const docRef = await addDoc(reviewsRef, newReview);
-    return docRef.id;
-  } catch (error) {
-    console.error('Error creating review:', error);
-    throw error;
-  }
+export const createReview = async (review: Omit<Review, 'id' | 'createdAt'>): Promise<string> => {
+  const reviewsRef = collection(db, 'reviews');
+  const docRef = await addDoc(reviewsRef, {
+    ...review,
+    createdAt: Timestamp.now()
+  });
+  return docRef.id;
 };
 
 // Update a review
-export const updateReview = async (reviewId: string, reviewData: Partial<Review>): Promise<void> => {
-  try {
-    const reviewRef = doc(db, 'reviews', reviewId);
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updateData: any = {
-      updatedAt: serverTimestamp()
-    };
-    
-    if (reviewData.rating !== undefined) updateData.rating = reviewData.rating;
-    if (reviewData.title !== undefined) updateData.title = reviewData.title;
-    if (reviewData.content !== undefined) updateData.content = reviewData.content;
-    
-    await updateDoc(reviewRef, updateData);
-  } catch (error) {
-    console.error('Error updating review:', error);
-    throw error;
-  }
+export const updateReview = async (reviewId: string, review: Partial<Review>): Promise<void> => {
+  const reviewsRef = collection(db, 'reviews');
+  await updateDoc(doc(reviewsRef, reviewId), review);
 };
 
 // Delete a review
 export const deleteReview = async (reviewId: string): Promise<void> => {
-  try {
-    const reviewRef = doc(db, 'reviews', reviewId);
-    await deleteDoc(reviewRef);
-  } catch (error) {
-    console.error('Error deleting review:', error);
-    throw error;
-  }
+  const reviewsRef = collection(db, 'reviews');
+  await deleteDoc(doc(reviewsRef, reviewId));
 };
 
 // Like a review

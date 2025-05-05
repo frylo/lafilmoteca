@@ -94,37 +94,34 @@ const signIn = async (email: string, password: string) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const firebaseUser = userCredential.user;
 
-    console.log('[signIn] Usuario autenticado:', {
-      uid: firebaseUser.uid,
-      email: firebaseUser.email
-    });
-
-    try {
-      await setDoc(doc(db, 'users', firebaseUser.uid), {
-        lastLogin: serverTimestamp()
-      }, { merge: true });
-      console.log('[signIn] setDoc de lastLogin completado');
-    } catch (firestoreErr) {
-      console.error('[signIn] Error al hacer setDoc de lastLogin:', firestoreErr);
-      throw firestoreErr;
+    // Verificar si el usuario está activo
+    const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+    if (!userDoc.exists() || !userDoc.data().isActive) {
+      await firebaseSignOut(auth);
+      setError('Tu cuenta ha sido desactivada. Por favor, contacta con el administrador.');
+      setCurrentUser(null);
+      setUserRole(null);
+      return;
     }
 
+    // Actualizar lastLogin
+    await setDoc(doc(db, 'users', firebaseUser.uid), {
+      lastLogin: serverTimestamp()
+    }, { merge: true });
+
+    setCurrentUser(userDoc.data() as User);
+    setUserRole(userDoc.data().role);
+    
   } catch (err: any) {
-    console.error('[signIn] FirebaseAuth error:', err);
-
-    if (err.code === 'auth/configuration-not-found') {
-      setError('Error de configuración en Firebase. Por favor, contacte al administrador.');
-    } else if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-      setError('Email o contraseña incorrectos.');
+    if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+      setError('Email o contraseña incorrectos');
     } else if (err.code === 'auth/too-many-requests') {
-      setError('Demasiados intentos fallidos. Por favor, inténtelo más tarde.');
-    } else if (err.code === 'permission-denied' || err.message?.includes('permission')) {
-      setError('Permisos insuficientes para acceder a los datos. Verifica las reglas de Firestore.');
+      setError('Demasiados intentos fallidos. Por favor, inténtalo más tarde');
     } else {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      setError(err.message || 'Error al iniciar sesión');
     }
-
-    throw err;
+    setCurrentUser(null);
+    setUserRole(null);
   } finally {
     setLoading(false);
   }
@@ -150,121 +147,43 @@ const signIn = async (email: string, password: string) => {
       setLoading(true);
       
       if (firebaseUser) {
-        // Maximum number of retry attempts for Firestore operations
-        const maxRetries = 5; // Increased from 3 to 5
-        let retryCount = 0;
-        let success = false;
-        const startTime = Date.now();  // Registrar el tiempo de inicio
-        const maxRetryTime = 30000;    // Tiempo máximo de reintento (30 segundos)
-        
-        // Function to calculate exponential backoff delay
-        const getBackoffDelay = (attempt: number) => {
-          // Base delay is 1000ms, with exponential increase and some randomness
-          return Math.min(Math.pow(2, attempt) * 1000 + Math.random() * 1000, 30000); // Max 30 seconds
-        };
-
-        // Function to handle Firestore operations with retry logic
-        const fetchUserDataWithRetry = async () => {
-          while (retryCount < maxRetries && !success && (Date.now() - startTime) < maxRetryTime) {
-            try {
-              console.log(`fetchUserDataWithRetry: Intento ${retryCount + 1}/${maxRetries} para el usuario ${firebaseUser.uid}`);
-              const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-              
-              if (userDoc.exists()) {
-                const userData = userDoc.data();
-                setCurrentUser({
-                  uid: firebaseUser.uid,
-                  email: firebaseUser.email || '',
-                  displayName: userData.displayName || firebaseUser.displayName || '',
-                  photoURL: userData.photoURL || firebaseUser.photoURL || '',
-                  role: userData.role || 'user', // Default role for new users
-                  isActive: userData.isActive || true
-                });
-                setUserRole(userData.role || 'user');
-                success = true;
-                console.log("fetchUserDataWithRetry: Éxito al obtener los datos del usuario", userData);
-              } else {
-                console.log("fetchUserDataWithRetry: El documento del usuario no existe. Creando uno nuevo.");
-                // If user document doesn't exist in Firestore, create it
-                await setDoc(doc(db, 'users', firebaseUser.uid), {
-                  uid: firebaseUser.uid,
-                  email: firebaseUser.email,
-                  displayName: firebaseUser.displayName,
-                  photoURL: firebaseUser.photoURL,
-                  role: 'user', // Default role
-                  createdAt: serverTimestamp(),
-                  lastLogin: serverTimestamp(),
-                  isActive: true
-                });
-                
-                setCurrentUser({
-                  uid: firebaseUser.uid,
-                  email: firebaseUser.email || '',
-                  displayName: firebaseUser.displayName || '',
-                  photoURL: firebaseUser.photoURL || '',
-                  role: 'user', // Default role
-                  isActive: true
-                });
-                setUserRole('user');
-                success = true;
-              }
-            } catch (err: any) {
-              retryCount++;
-              console.error(`fetchUserDataWithRetry: Error en el intento ${retryCount}:`, err);
-              
-              const isLikelyNetworkError = (
-                err.code === 'unavailable' ||
-                err.code === 'resource-exhausted' ||
-                err.code === 'deadline-exceeded' ||
-                err.message?.includes('network') ||
-                err.message?.includes('transport errored') ||
-                err.message?.includes('WebChannelConnection') ||
-                err.message?.includes('RPC') ||
-                err.message?.includes('stream') ||
-                err.message?.includes('connection')
-              );
-              
-              if (isLikelyNetworkError) {
-                // If we haven't reached max retries, wait before trying again with exponential backoff
-                if (retryCount < maxRetries) {
-                  const delay = getBackoffDelay(retryCount);
-                  console.log(`fetchUserDataWithRetry: Posible error de red. Reintentando en ${delay}ms`);
-                  await new Promise(resolve => setTimeout(resolve, delay));
-                } else {
-                  setError('Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente.');
-                  console.warn('Maximum retry attempts reached for network error');
-                }
-              } else {
-                // For non-network errors, don't retry
-                setError('Error al cargar datos del usuario');
-                console.error('Firestore WebChannelConnection error:', err); // Log detailed error information
-                break;
-              }
-            }
+        try {
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          
+          if (!userDoc.exists() || !userDoc.data().isActive) {
+            // Si el usuario no está activo, cerrar sesión y no actualizar el estado
+            await firebaseSignOut(auth);
+            setCurrentUser(null);
+            setUserRole(null);
+            setError('Tu cuenta ha sido desactivada. Por favor, contacta con el administrador.');
+            return;
           }
 
-          if (!success) {
-            console.error("fetchUserDataWithRetry: Tiempo máximo de reintento alcanzado o error no recuperable.");
-            setError('Error al cargar datos del usuario. Por favor, inténtelo más tarde.');
-          }
-        };
-
-        // Execute the retry function
-        await fetchUserDataWithRetry();
+          const userData = userDoc.data();
+          setCurrentUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            displayName: userData.displayName || firebaseUser.displayName || '',
+            photoURL: userData.photoURL || firebaseUser.photoURL || '',
+            role: userData.role || 'user',
+            isActive: userData.isActive || true
+          });
+          setUserRole(userData.role || 'user');
+        } catch (err) {
+          console.error('Error fetching user data:', err);
+          setError('Error al cargar datos del usuario');
+          setCurrentUser(null);
+          setUserRole(null);
+        }
       } else {
         // No user is signed in
         setCurrentUser(null);
-        setUserRole('guest'); // Default role for non-authenticated users
+        setUserRole('guest');
       }
       
-      // Ensure loading state is set to false even if there were errors
       setLoading(false);
-      
-      // Log authentication state for debugging
-      console.log('Auth state updated:', firebaseUser ? 'User authenticated' : 'No user');
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 

@@ -2,18 +2,19 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getUserCollections, deleteCollection } from '../../lib/collections';
 import { Collection } from '../../types/collections';
+import CollectionForm from './CollectionForm';
 
 interface UserCollectionsProps {
   userId: string;
-  onCreateCollection?: () => void;
   onCountChange: (count: number) => void;
 }
 
-const UserCollections = ({ userId, onCreateCollection, onCountChange }: UserCollectionsProps) => {
+const UserCollections = ({ userId, onCountChange }: UserCollectionsProps) => {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+  const [showCollectionForm, setShowCollectionForm] = useState(false);
 
   useEffect(() => {
     const fetchCollections = async () => {
@@ -45,6 +46,7 @@ const UserCollections = ({ userId, onCreateCollection, onCountChange }: UserColl
       setDeleteLoading(collectionId);
       await deleteCollection(collectionId);
       setCollections(collections.filter(collection => collection.id !== collectionId));
+      onCountChange(collections.length - 1);
     } catch (err) {
       console.error('Error deleting collection:', err);
       alert('Error al eliminar la colección. Por favor, inténtalo de nuevo.');
@@ -66,7 +68,7 @@ const UserCollections = ({ userId, onCreateCollection, onCountChange }: UserColl
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-filmoteca-white">Mis Colecciones</h2>
         <button
-          onClick={onCreateCollection}
+          onClick={() => setShowCollectionForm(true)}
           className="btn-primary text-sm"
         >
           Nueva Colección
@@ -79,15 +81,32 @@ const UserCollections = ({ userId, onCreateCollection, onCountChange }: UserColl
         </div>
       )}
       
+      {showCollectionForm && (
+        <div className="mb-6">
+          <CollectionForm
+            userId={userId}
+            onSuccess={() => {
+              setShowCollectionForm(false);
+              // Refresh collections
+              const fetchCollections = async () => {
+                try {
+                  const userCollections = await getUserCollections(userId);
+                  setCollections(userCollections);
+                  onCountChange(userCollections.length);
+                } catch (err) {
+                  console.error('Error fetching collections:', err);
+                }
+              };
+              fetchCollections();
+            }}
+            onCancel={() => setShowCollectionForm(false)}
+          />
+        </div>
+      )}
+      
       {collections.length === 0 ? (
         <div className="text-center py-8 text-filmoteca-light">
           <p className="mb-4">Aún no has creado ninguna colección.</p>
-          <button
-            onClick={onCreateCollection}
-            className="btn-secondary text-sm"
-          >
-            Crear mi primera colección
-          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
