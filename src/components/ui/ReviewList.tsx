@@ -14,19 +14,19 @@ const ReviewList = ({ movieId }: ReviewListProps) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        setLoading(true);
+  const fetchReviews = async () => {
+    try {
+      setLoading(true);
         const movieReviews = await getMovieReviews(movieId);
         setReviews(movieReviews);
-        setError(null);
-      } catch (err) {
+      setError(null);
+    } catch (err) {
         setError('Error al cargar las reseñas');
-        console.error('Error fetching reviews:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      console.error('Error fetching reviews:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
     fetchReviews();
   }, [movieId]);
@@ -47,7 +47,7 @@ const ReviewList = ({ movieId }: ReviewListProps) => {
     <div className="space-y-4">
       {reviews.map((review) => (
         <ReviewCard key={review.id} review={review} />
-      ))}
+          ))}
     </div>
   );
 };

@@ -15,8 +15,8 @@ export const LoginForm = () => {
       await signIn(email, password);
       // Solo resetear el formulario si no hay error
       if (!error) {
-        setEmail('');
-        setPassword('');
+      setEmail('');
+      setPassword('');
       }
     } catch (err) {
       // El error ya está manejado en el AuthContext

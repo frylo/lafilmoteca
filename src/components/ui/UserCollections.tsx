@@ -107,12 +107,6 @@ const UserCollections = ({ userId, onCountChange }: UserCollectionsProps) => {
       {collections.length === 0 ? (
         <div className="text-center py-8 text-filmoteca-light">
           <p className="mb-4">Aún no has creado ninguna colección.</p>
-          <button
-            onClick={() => setShowCollectionForm(true)}
-            className="btn-secondary text-sm"
-          >
-            Crear mi primera colección
-          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

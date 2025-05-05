@@ -55,17 +55,17 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  // Manejar desactivación de usuario
-  const handleDeactivateUser = async (userId: string) => {
-    if (window.confirm('¿Estás seguro de que deseas desactivar este usuario?')) {
+  // Manejar desactivación/activación de usuario
+  const handleToggleUserStatus = async (userId: string, currentStatus: boolean) => {
+    if (window.confirm(`¿Estás seguro de que deseas ${currentStatus ? 'desactivar' : 'activar'} este usuario?`)) {
       try {
-        await deactivateUser(userId);
+        await deactivateUser(userId, !currentStatus);
         setUsers(users.map(user => 
-          user.uid === userId ? { ...user, isActive: false } : user
+          user.uid === userId ? { ...user, isActive: !currentStatus } : user
         ));
       } catch (err) {
-        setError('Error al desactivar el usuario. Por favor, inténtalo de nuevo.');
-        console.error('Error deactivating user:', err);
+        setError('Error al actualizar el estado del usuario. Por favor, inténtalo de nuevo.');
+        console.error('Error updating user status:', err);
       }
     }
   };
@@ -140,11 +140,10 @@ const UserManagement: React.FC = () => {
                 </td>
                 <td className="py-3 px-4">
                   <button
-                    onClick={() => handleDeactivateUser(user.uid)}
+                    onClick={() => handleToggleUserStatus(user.uid, user.isActive)}
                     className="btn-secondary"
-                    disabled={user.isActive === false}
                   >
-                    {user.isActive !== false ? 'Desactivar' : 'Desactivado'}
+                    {user.isActive ? 'Desactivar' : 'Activar'}
                   </button>
                 </td>
               </tr>

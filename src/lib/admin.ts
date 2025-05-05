@@ -34,15 +34,15 @@ export const updateUserRole = async (userId: string, newRole: string): Promise<v
 };
 
 /**
- * Desactiva una cuenta de usuario
+ * Actualiza el estado de activación de un usuario
  */
-export const deactivateUser = async (userId: string): Promise<void> => {
+export const deactivateUser = async (userId: string, isActive: boolean): Promise<void> => {
   try {
     const userRef = doc(db, 'users', userId);
-    await updateDoc(userRef, { isActive: false });
+    await updateDoc(userRef, { isActive });
   } catch (error) {
-    console.error('Error al desactivar usuario:', error);
-    throw new Error('No se pudo desactivar el usuario');
+    console.error('Error al actualizar estado de usuario:', error);
+    throw new Error('No se pudo actualizar el estado del usuario');
   }
 };
 
