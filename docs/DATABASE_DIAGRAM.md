@@ -1,94 +1,81 @@
-# Diagrama de Base de Datos para LaFilmoteca
+# Diagrama de la Base de Datos de LaFilmoteca
 
-## Modelo Entidad-Relación
+## Colecciones y Campos
 
-Este documento describe el modelo de datos para LaFilmoteca, incluyendo las entidades principales, sus atributos y las relaciones entre ellas.
-
-### Entidades Principales
-
-#### Usuario
-- **uid**: string - Identificador único del usuario
-- **email**: string - Correo electrónico del usuario
-- **displayName**: string - Nombre de visualización
-- **role**: enum ('guest', 'user', 'admin') - Rol del usuario
-- **createdAt**: Date - Fecha de creación de la cuenta
-- **lastLogin**: Date - Fecha del último inicio de sesión
-
-#### Película
-- **id**: string - Identificador único de la película (de TMDB)
-- **title**: string - Título de la película
-- **originalTitle**: string - Título original de la película
-- **poster**: string - URL del póster de la película
-- **backdrop**: string - URL de la imagen de fondo
-- **year**: number - Año de lanzamiento
-- **director**: string - Director principal
-- **runtime**: number - Duración en minutos
-- **genres**: string[] - Géneros de la película
-- **plot**: string - Sinopsis de la película
-- **cast**: string[] - Reparto principal
-- **rating**: number - Valoración media (de TMDB)
-
-#### Reseña
-- **id**: string - Identificador único de la reseña
-- **movieId**: string - Referencia a la película
-- **userId**: string - Referencia al usuario
-- **userName**: string - Nombre del usuario
-- **rating**: number - Valoración (1-5 estrellas)
-- **title**: string - Título de la reseña
-- **content**: string - Contenido de la reseña
-- **createdAt**: Date - Fecha de creación
-- **updatedAt**: Date - Fecha de última actualización
-- **isApproved**: boolean - Estado de aprobación
-
-#### Colección
-- **id**: string - Identificador único de la colección
-- **userId**: string - Referencia al usuario propietario
-- **name**: string - Nombre de la colección
-- **description**: string - Descripción de la colección
-- **isPublic**: boolean - Visibilidad de la colección
-- **createdAt**: Date - Fecha de creación
-- **updatedAt**: Date - Fecha de última actualización
-
-#### PelículaColección
-- **collectionId**: string - Referencia a la colección
-- **movieId**: string - Referencia a la película
-- **addedAt**: Date - Fecha de adición a la colección
-
-### Relaciones
-
-1. **Usuario - Reseña**: Un usuario puede crear múltiples reseñas (1:N)
-2. **Película - Reseña**: Una película puede tener múltiples reseñas (1:N)
-3. **Usuario - Colección**: Un usuario puede crear múltiples colecciones (1:N)
-4. **Colección - Película**: Una colección puede contener múltiples películas y una película puede estar en múltiples colecciones (N:M) a través de PelículaColección
-
-### Diagrama Textual
-
-```
-Usuario 1 --- N Reseña N --- 1 Película
-   |
-   1
-   |
-   N
-Colección N --- M Película
+### users
+```typescript
+{
+  uid: string;              // ID del usuario (mismo que auth)
+  email: string;            // Email del usuario
+  displayName: string;      // Nombre mostrado
+  photoURL?: string;        // URL de la foto de perfil
+  role: 'user' | 'admin';   // Rol del usuario
+  isActive: boolean;        // Estado de la cuenta
+  bio?: string;             // Biografía del usuario
+  createdAt: Timestamp;     // Fecha de creación
+  updatedAt: Timestamp;     // Fecha de última actualización
+}
 ```
 
-## Implementación en Firebase
+### collections
+```typescript
+{
+  id: string;              // ID de la colección
+  userId: string;          // ID del usuario creador
+  name: string;            // Nombre de la colección
+  description?: string;    // Descripción
+  isPublic: boolean;       // Visibilidad pública
+  createdAt: Timestamp;    // Fecha de creación
+  updatedAt: Timestamp;    // Fecha de última actualización
+  coverImage?: string;     // Imagen de portada
+  movieCount: number;      // Número de películas
+}
+```
 
-En Firebase Firestore, este modelo se implementará utilizando las siguientes colecciones:
+### collectionMovies
+```typescript
+{
+  id: string;              // ID de la relación
+  collectionId: string;    // ID de la colección
+  movieId: string;         // ID de la película
+  userId: string;          // ID del usuario dueño
+  addedAt: Timestamp;      // Fecha de adición
+}
+```
 
-- **users**: Documentos de usuarios con sus datos básicos
-- **userProfiles**: Datos extendidos de perfiles de usuario
-- **reviews**: Reseñas de películas
-- **collections**: Colecciones de películas
-- **collectionMovies**: Relación entre colecciones y películas
+### reviews
+```typescript
+{
+  id: string;              // ID de la reseña
+  movieId: string;         // ID de la película
+  userId: string;          // ID del usuario
+  userName: string;        // Nombre del usuario
+  userPhotoURL?: string;   // URL de la foto del usuario
+  rating: number;          // Valoración (1-5)
+  title: string;           // Título de la reseña
+  content: string;         // Contenido de la reseña
+  likes: number;           // Número de likes
+  isApproved: boolean;     // Estado de aprobación
+  createdAt: Timestamp;    // Fecha de creación
+}
+```
 
-Las películas no se almacenarán directamente en Firestore, sino que se obtendrán a través de la API de TMDB y se cachearán localmente cuando sea necesario.
+## Reglas de Seguridad
 
-### Reglas de Seguridad
+1. **users**
+   - Lectura: Cualquiera puede leer
+   - Creación: Solo el propio usuario
+   - Actualización/Eliminación: Solo el propio usuario o admin
 
-Se implementarán reglas de seguridad en Firestore para garantizar:
+2. **collections**
+   - Lectura: Cualquiera puede leer
+   - Creación: Solo usuarios activos
+   - Actualización/Eliminación: Solo el propietario
 
-- Los datos de usuario solo pueden ser leídos/escritos por el propio usuario o administradores
-- Las reseñas pueden ser leídas por todos, pero solo modificadas por su autor o administradores
-- Las colecciones privadas solo son accesibles por su propietario
-- Los administradores tienen acceso completo para moderación
+3. **collectionMovies**
+   - Lectura: Cualquiera puede leer
+   - Escritura: Solo el propietario de la colección
+
+4. **reviews**
+   - Lectura: Cualquiera puede leer
+   - Escritura: Solo usuarios activos
