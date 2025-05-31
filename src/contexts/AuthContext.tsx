@@ -85,7 +85,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-// Sign in existing user
 const signIn = async (email: string, password: string) => {
   try {
     setLoading(true);
@@ -94,7 +93,6 @@ const signIn = async (email: string, password: string) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const firebaseUser = userCredential.user;
 
-    // Verificar si el usuario está activo
     const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
     if (!userDoc.exists() || !userDoc.data().isActive) {
       await firebaseSignOut(auth);
@@ -127,7 +125,6 @@ const signIn = async (email: string, password: string) => {
   }
 };
 
-  // Sign out user
   const signOut = async () => {
     try {
       setLoading(true);
@@ -141,7 +138,6 @@ const signIn = async (email: string, password: string) => {
     }
   };
 
-  // Listen for auth state changes and fetch user data from Firestore
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       setLoading(true);
@@ -176,7 +172,6 @@ const signIn = async (email: string, password: string) => {
           setUserRole(null);
         }
       } else {
-        // No user is signed in
         setCurrentUser(null);
         setUserRole('guest');
       }

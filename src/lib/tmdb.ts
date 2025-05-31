@@ -55,7 +55,7 @@ export const searchMovies = async (query: string, page: number = 1): Promise<{ m
       originalTitle: movie.original_title,
       poster: movie.poster_path ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}` : '',
       year: movie.release_date ? new Date(movie.release_date).getFullYear() : 0,
-      director: '', // TMDB doesn't provide director in search results
+      director: '',
       plot: movie.overview,
       rating: movie.vote_average,
     }));

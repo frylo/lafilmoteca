@@ -22,12 +22,10 @@ const Admin = () => {
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState(TABS.DASHBOARD);
 
-  // Redireccionar si el usuario no es administrador
   if (!currentUser || currentUser.role !== 'admin') {
     return <Navigate to="/" replace />;
   }
 
-  // Renderizar el contenido según la pestaña activa
   const renderContent = () => {
     switch (activeTab) {
       case TABS.DASHBOARD:

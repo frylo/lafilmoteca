@@ -84,7 +84,7 @@ const Layout = () => {
       
       <footer className="bg-filmoteca-dark border-t border-filmoteca-gray border-opacity-30 py-6 mt-auto">
         <div className="container mx-auto px-4 text-center text-filmoteca-gray">
-          <p>© {new Date().getFullYear()} LaFilmoteca - Todos los derechos reservados</p>
+          <p>© {new Date().getFullYear()} LaFilmoteca</p>
         </div>
       </footer>
     </div>

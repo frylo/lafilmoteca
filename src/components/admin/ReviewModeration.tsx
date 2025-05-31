@@ -2,22 +2,45 @@ import React, { useState, useEffect } from 'react';
 import { Review } from '../../types';
 import StarRating from '../ui/StarRating';
 import { getPendingReviews, moderateReview } from '../../lib/admin';
+import { getMovieDetails } from '../../lib/tmdb';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
+interface ReviewWithMovie extends Review {
+  movieTitle: string;
+}
+
 const ReviewModeration: React.FC = () => {
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<ReviewWithMovie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const reviewsPerPage = 5;
 
-  // Cargar reseñas pendientes de moderación
   useEffect(() => {
     const fetchPendingReviews = async () => {
       try {
         setLoading(true);
         const pendingReviews = await getPendingReviews();
-        setReviews(pendingReviews);
+        
+        const reviewsWithMovies = await Promise.all(
+          pendingReviews.map(async (review) => {
+            try {
+              const movie = await getMovieDetails(review.movieId);
+              return {
+                ...review,
+                movieTitle: movie.title
+              };
+            } catch (err) {
+              console.error(`Error fetching movie ${review.movieId}:`, err);
+              return {
+                ...review,
+                movieTitle: 'Película no disponible'
+              };
+            }
+          })
+        );
+        
+        setReviews(reviewsWithMovies);
         setError(null);
       } catch (err) {
         setError('Error al cargar reseñas pendientes. Por favor, inténtalo de nuevo.');
@@ -30,17 +53,14 @@ const ReviewModeration: React.FC = () => {
     fetchPendingReviews();
   }, []);
 
-  // Calcular paginación
   const indexOfLastReview = currentPage * reviewsPerPage;
   const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
   const currentReviews = reviews.slice(indexOfFirstReview, indexOfLastReview);
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
 
-  // Manejar aprobación/rechazo de reseña
   const handleModerateReview = async (reviewId: string, isApproved: boolean) => {
     try {
       await moderateReview(reviewId, isApproved);
-      // Actualizar estado local
       setReviews(reviews.filter(review => review.id !== reviewId));
     } catch (err) {
       setError('Error al moderar la reseña. Por favor, inténtalo de nuevo.');
@@ -62,14 +82,17 @@ const ReviewModeration: React.FC = () => {
         </div>
       )}
       
-      <div className="space-y-6">
+      <div className="space-y-6 p-6">
         {currentReviews.map(review => (
-          <div key={review.id} className="bg-filmoteca-dark p-6 rounded-lg shadow border border-filmoteca-gray border-opacity-30">
+          <div key={review.id} className="bg-filmoteca-dark p-6 rounded-lg border border-filmoteca-gray border-opacity-30">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h3 className="text-xl font-semibold text-filmoteca-white">{review.title}</h3>
+                <h3 className="text-xl font-semibold text-filmoteca-white">Título: {review.title}</h3>
                 <p className="text-filmoteca-light">
-                  Película: {review.title} | Usuario: {review.userName}
+                  Usuario: {review.userName}
+                </p>
+                <p className="text-filmoteca-light">
+                  Película: {review.movieTitle}
                 </p>
                 <div className="mt-1">
                   <StarRating initialRating={review.rating} />
