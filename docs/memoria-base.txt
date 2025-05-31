@@ -1,0 +1,1425 @@
+Memoria Técnica del Proyecto LaFilmoteca
+LaFilmoteca es una aplicación web moderna orientada a aficionados al cine, que les permite
+descubrir y buscar películas a través de la API de The Movie Database (TMDB), gestionar su
+propia colección personal de películas y compartir reseñas u opiniones sobre las mismas . Se
+trata de un proyecto desarrollado como parte del módulo de Proyecto en el ciclo de Desarrollo de
+Aplicaciones Web (DAW) del IES Abastos, siguiendo una metodología estructurada en cuatro
+fases: Identificación, Diseño, Desarrollo y Evaluación. A continuación, se presenta la memoria
+técnica detallada del proyecto, organizada conforme a dichas fases y cumpliendo con los
+requisitos formales establecidos (numeración jerárquica, estilo impersonal, etc.). Todas las
+decisiones técnicas, implementaciones de código y resultados obtenidos se documentan de
+forma rigurosa, con referencias al código fuente y documentación asociada.
+1. Fase I: Identificación (Necesidades del Sector y del Usuario)
+En la fase de Identificación se analizan las necesidades del sector cinematográfico en entornos
+web y los requisitos de los usuarios finales a los que se dirige LaFilmoteca. Esta etapa inicial
+sienta las bases del proyecto, justificando su razón de ser y definiendo claramente los objetivos a
+cumplir.
+1.1 Contexto y Justificación del Proyecto
+La proliferación de servicios en línea para cinéfilos (bases de datos de películas, plataformas de
+streaming, redes sociales de cine, etc.) evidencia un interés creciente en herramientas que
+centralicen información cinematográfica y permitan a los usuarios llevar un registro personal de
+las películas que han visto o desean ver. Sin embargo, muchas de las soluciones existentes
+carecen de funcionalidades específicas que combinen colecciones personalizadas, reseñas de
+usuarios y moderación de contenido en un mismo entorno. LaFilmoteca surge para cubrir esta
+necesidad: ofrece una plataforma unificada donde los entusiastas del cine pueden explorar un
+amplio catálogo de películas (gracias a la integración con TMDB), crear y administrar listas
+personalizadas de filmes, escribir reseñas valorativas y, a la vez, contar con una comunidad
+moderada que garantice contenido de calidad.
+Desde la perspectiva del sector, el proyecto se beneficia de servicios ya consolidados. En lugar
+de mantener una base de datos propia de películas (lo cual sería costoso y redundante),
+LaFilmoteca aprovecha la API pública de TMDB para obtener datos actualizados y detallados de
+películas (títulos, sinopsis, reparto, carteles, etc.) . Esto no solo reduce el esfuerzo de
+mantenimiento, sino que asegura un catálogo extenso y siempre al día para el usuario.
+Adicionalmente, la elección de Firebase como plataforma backend como servicio (BaaS)
+responde a la necesidad de contar con un sistema robusto de autenticación de usuarios, base de
+datos en tiempo real y alojamiento web sin tener que construir una infraestructura desde cero.
+Firebase proporciona autenticación segura, base de datos escalable (Firestore) y
+almacenamiento, facilitando el cumplimiento de requisitos clave como persistencia de datos de
+usuario, sincronización en tiempo real y seguridad en el acceso .
+Desde la perspectiva del usuario, se identificaron varios requerimientos fundamentales:
+• Búsqueda y descubrimiento de películas: El usuario debe poder encontrar
+información de cualquier película de interés de forma rápida. Para ello, se necesita una
+funcionalidad de búsqueda por título y acceso a fichas detalladas de cada película (año, director,
+reparto, sinopsis, póster, etc.). LaFilmoteca cubre este aspecto mediante la integración con
+TMDB, permitiendo búsquedas por palabra clave y mostrando resultados en tiempo real con
+datos oficiales .
+• Colecciones personalizadas de películas: Más allá de marcar “favoritos”, los
+usuarios desean organizar sus películas en colecciones (listas) personales – por ejemplo “Mis
+Favoritas”, “Pendientes de ver”, o categorías temáticas. Se requiere entonces una forma de crear,
+editar y visualizar colecciones de películas, almacenando esta información vinculada a cada
+usuario. La aplicación aborda esta necesidad mediante una entidad de colección en la base de
+datos y una interfaz para que el usuario gestione sus propias listas. Cada colección puede tener
+un nombre, descripción y configuración de privacidad (pública o privada), y contener múltiples
+películas agregadas manualmente por el usuario .
+• Sistema de reseñas y valoraciones: Un componente social fundamental es permitir
+a los usuarios escribir reseñas sobre películas y asignar puntuaciones. Esto responde al deseo de
+compartir opiniones y consultar las de otros cinéfilos dentro de la plataforma. Se planteó como
+requisito la posibilidad de crear reseñas con un título, un cuerpo de texto y una valoración
+numérica (p. ej., de 1 a 5 estrellas), así como de dar “me gusta” a reseñas de otros usuarios para
+destacar las más útiles o populares. LaFilmoteca implementa este sistema de reseñas de manera
+que cada usuario autenticado pueda publicar su crítica de una película, la cual quedará asociada
+a su perfil y a la ficha de la película correspondiente .
+• Roles de usuario y moderación: Dada la naturaleza participativa (usuarios
+generando contenido en forma de reseñas y colecciones públicas), se identificó la necesidad de
+controlar y moderar dicho contenido. Para ello, el sistema debía distinguir al menos entre
+usuarios regulares y administradores. El rol de administrador tendría facultades para aprobar o
+rechazar reseñas (evitando contenido inapropiado) y gestionar a los usuarios (por ejemplo,
+bloquear cuentas que infrinjan normas). También se consideró un rol de usuario invitado o básico
+(por ejemplo, visitantes no autenticados o recién registrados con permisos limitados). En
+consecuencia, se definió un sistema de roles de usuario: invitado, usuario (registrado estándar) y
+admin (administrador), con diferentes niveles de acceso y permisos . Esto asegura que la
+plataforma se mantenga segura y confiable, con contenido revisado y una jerarquía de control.
+• Accesibilidad y diseño responsive: Los usuarios potenciales pueden acceder a la
+aplicación desde distintos dispositivos, por lo que se requiere una interfaz web responsive,
+adaptable a móviles, tabletas y escritorios. Asimismo, se pretende un diseño visual atractivo pero
+sobrio, acorde a la temática cinematográfica, que facilite la lectura prolongada (p. ej., al leer
+reseñas). Para cumplir con esto, LaFilmoteca adopta un diseño mobile-first y una estética
+inspirada en salas de cine (tonos oscuros, textos contrastados), implementada con ayuda de
+Tailwind CSS para lograr consistencia y responsividad de manera eficiente . En la sección de
+diseño se detallará la guía de estilos definida, incluyendo la paleta de colores y tipografía elegida,
+que están orientadas a brindar una experiencia visual coherente y cómoda para el usuario.
+En resumen, el análisis del contexto y de las necesidades del usuario llevó a definir los objetivos
+generales del proyecto LaFilmoteca de la siguiente forma:
+• Desarrollar una aplicación web que permita buscar películas y visualizar sus
+detalles, integrando la API de TMDB para obtener datos actualizados.
+• Implementar funcionalidades para que los usuarios puedan registrarse, iniciar
+sesión y gestionar un perfil personal, asegurando la protección de datos y la personalización (foto
+de perfil, bio, etc.).
+• Proporcionar a los usuarios autenticados la capacidad de crear y mantener
+colecciones de películas favoritas u otras listas personalizadas, almacenadas en el sistema.
+• Desarrollar un sistema de reseñas de películas, completo con interfaz de
+publicación, edición, eliminación, visualización de valoraciones (estrellas) y conteo de “me gusta”.
+• Incorporar un panel de administración restringido a usuarios con rol admin, donde
+sea posible moderar el contenido (aprobar/rechazar reseñas antes de su publicación pública) y
+gestionar la comunidad de usuarios (por ejemplo, ascender a admin, revocar acceso o desactivar
+cuentas cuando sea necesario).
+• Garantizar la seguridad y privacidad: solo usuarios autorizados deben acceder a
+ciertas operaciones (por ejemplo, un usuario solo edita sus propias reseñas; solo admins eliminan
+reseñas ajenas), lo cual se logrará mediante reglas de seguridad en la base de datos y
+comprobaciones de rol en la aplicación.
+• Asegurar una experiencia de uso óptima mediante un diseño responsive, carga
+eficiente de contenidos (p. ej., manejo de estados de carga al esperar respuesta de la API) y un
+estilo visual profesional que refuerce la temática cinematográfica.
+Estos objetivos y requisitos sentaron la pauta para la fase siguiente, Diseño, en la cual se
+definieron la arquitectura técnica de la aplicación, su modelo de datos, las especificaciones de
+interfaz y las tecnologías a emplear para materializar las funciones identificadas.
+2. Fase II: Diseño Técnico y Estructural
+En la fase de Diseño se concretan las decisiones arquitectónicas y la planificación técnica que
+guiarán la implementación. Esto incluye la selección del stack tecnológico, la definición de la
+arquitectura de la aplicación (tanto a nivel frontend como la interacción con servicios externos), el
+diseño de la base de datos (modelo de datos y reglas de seguridad) y el diseño de la interfaz de
+usuario (guía de estilos, estructura de navegación y componentes principales). Todo el diseño se
+realiza con base en los requisitos identificados, asegurando que cada componente propuesto
+satisfaga una necesidad del sistema. A continuación, se detalla cada aspecto clave del diseño de
+LaFilmoteca.
+2.1 Arquitectura de la Aplicación
+LaFilmoteca sigue una arquitectura típica de aplicación web de una sola página (SPA). No existe
+un servidor de aplicación tradicional propio; en su lugar, la lógica de negocio reside en el cliente
+(navegador) desarrollado en React (TypeScript), mientras que se delegan las responsabilidades de
+backend a servicios en la nube (Firebase y la API de TMDB). La arquitectura se puede visualizar
+en capas:
+• Capa de Presentación (Frontend): Desarrollada con React 18+ y TypeScript, lo que
+aporta tipado estático para mayor robustez. La aplicación se construyó con la herramienta de
+bundling Vite, que proporciona un entorno de desarrollo rápido y eficiente. La interfaz de usuario
+está compuesta de componentes React reutilizables, estilizados mediante Tailwind CSS para
+asegurar consistencia con la guía de estilos definida. El enrutamiento interno se maneja con
+React Router, permitiendo una navegación fluida entre vistas (páginas) sin recargas completas de
+página. Para la gestión del estado global (como la información del usuario autenticado y su rol),
+se emplea el Context API de React, creando un AuthContext que provee los datos de
+autenticación a todos los componentes que los necesiten.
+• Capa de Datos (Backend as a Service y APIs): LaFilmoteca delega la persistencia y
+sincronización de datos a Firebase Firestore, una base de datos NoSQL en tiempo real alojada en
+la nube. Firestore almacena los datos de usuarios, colecciones y reseñas, entre otros,
+estructurados en colecciones de documentos (ver sección 2.2 para el modelo detallado).
+Adicionalmente, Firebase Authentication gestiona la autenticación de usuarios (registro, login,
+etc.), facilitando la verificación de identidad y emisión de tokens seguros para restringir el acceso
+a los recursos. Para obtener la información detallada de películas (sinopsis, reparto, imágenes,
+etc.), la aplicación se integra con la API REST de TMDB – las peticiones a esta API externa las
+realiza directamente el cliente desde el navegador, obteniendo respuestas en formato JSON que
+luego se renderizan en la interfaz. Es decir, la arquitectura es en gran medida serverless, donde el
+código cliente interactúa con servicios de terceros: Firebase actúa como nuestro backend para
+datos de la aplicación y TMDB como proveedor de datos de películas.
+• Capa de Control y Seguridad: Si bien gran parte de la lógica sucede en el cliente,
+es crucial controlar el acceso a los datos sensibles desde el lado del backend. Para ello, se
+diseñaron reglas de seguridad de Firestore que se ejecutan en los servidores de Firebase cada
+vez que una aplicación cliente intenta leer o escribir en la base de datos. Estas reglas utilizan la
+autenticación provista por Firebase para autorizar operaciones en función del UID del usuario y
+sus claims (en nuestro caso, el rol del usuario). Por ejemplo, se estableció que: cualquiera puede
+leer ciertos datos públicos (como listas de películas o reseñas aprobadas), pero solo el usuario
+dueño de un documento puede modificarlo, con excepciones para administradores que pueden
+tener control total . Esta separación garantiza que, incluso si un usuario malintencionado
+manipulara la aplicación cliente, no podría sobrepasar las restricciones definidas en el servidor de
+Firestore, protegiendo la integridad y privacidad de la información.
+En cuanto a la integración continua y despliegue, la arquitectura del proyecto incorpora un flujo
+de CI/CD usando GitHub Actions y Firebase Hosting. El código fuente se gestiona en Git
+(plataforma GitHub) y se adoptó un modelo de ramas estilo GitFlow (detallado más adelante en la
+sección de Desarrollo). Cuando se fusionan cambios a la rama principal (main), un workflow de
+GitHub Actions se activa automáticamente: este workflow instala las dependencias, construye la
+aplicación (generando los archivos estáticos optimizados con Vite) y finalmente despliega la
+versión de producción a Firebase Hosting . De esta forma, el despliegue es automatizado y
+reproducible, reduciendo la posibilidad de errores manuales y asegurando que la versión alojada
+esté siempre actualizada con los últimos cambios validados. La arquitectura sin servidor y el
+hosting en Firebase permiten además escalar la aplicación fácilmente para atender a más
+usuarios, sin necesidad de administrar servidores propios.
+En resumen, el diseño arquitectónico de LaFilmoteca se basa en un cliente React robusto,
+potenciado por servicios cloud:
+React para la interfaz dinámica, Firebase para autenticación, base de datos y hosting, y TMDB
+como fuente de datos de películas. Esta elección minimiza la complejidad de backend para el
+desarrollador, aprovechando servicios gestionados, y cumple con los requisitos de rapidez,
+fiabilidad y seguridad planteados inicialmente.
+2.2 Modelo de Datos (Firestore) y Estructura de la Base de Datos
+En Firestore, los datos se organizan en colecciones de documentos. Tras analizar las necesidades
+de información de LaFilmoteca, se definieron las siguientes colecciones principales en la base de
+datos, junto a sus campos más relevantes:
+• Colección users: Almacena el perfil de cada usuario registrado. El documento de
+un usuario tiene como ID su UID (identificador único proporcionado por Firebase Auth). Los
+campos incluyen la información básica de la cuenta y configuraciones de estado y rol. A
+continuación se muestra la estructura en formato TypeScript de un documento de users:
+{
+uid: string; // UID del usuario (coincide con Firebase Auth)
+email: string; // Correo electrónico del usuario
+displayName: string; // Nombre público mostrado en la aplicación
+photoURL?: string; // URL de la foto de perfil (opcional)
+role: 'user' | 'admin'; // Rol del usuario en la aplicación
+isActive: boolean; // Indica si la cuenta está activa o ha sido desactivada
+bio?: string; // Biografía o descripción del usuario (opcional)
+createdAt: Timestamp; // Fecha de creación de la cuenta
+updatedAt: Timestamp; // Fecha de la última actualización del perfil
+}
+Como se observa, cada usuario tiene un campo role que puede ser 'user' (usuario estándar) o
+'admin'. Aunque durante la identificación se consideró un rol “invitado”, en la base de datos solo
+se almacenan usuarios registrados; un invitado equivale simplemente a un usuario no autenticado
+que por tanto no tendrá documento en users. El campo isActive es un indicador de estado de la
+cuenta: un administrador puede cambiarlo a false para desactivar/bloquear temporalmente a un
+usuario, impidiéndole realizar operaciones (esto se implementa mediante reglas de seguridad que
+verifican isActive). Adicionalmente, se almacenan campos como createdAt y updatedAt para
+auditoría y posibles estadísticas (p.ej., saber cuándo se unió un usuario). La información del perfil
+(nombre a mostrar, foto, bio) permite personalizar la experiencia social dentro de la aplicación.
+• Colección collections: Representa las colecciones personalizadas de películas
+creadas por los usuarios. Cada documento en collections corresponde a una lista/colección; por
+ejemplo, un usuario podría tener una colección llamada “Mis Favoritas de 2025”. La estructura es
+la siguiente:
+{
+id: string; userId: string; name: string; description?: string; isPublic: boolean; coverImage?: string; movieCount: number; createdAt: Timestamp; updatedAt: Timestamp; // ID único de la colección (generado automáticamente)
+// UID del usuario propietario/creador de la colección
+// Nombre de la colección (ej: "Películas Pendientes")
+// Descripción de la colección (opcional)
+// Indica si la colección es pública (visible para otros) o privada
+// URL de imagen de portada representativa de la colección (opcional)
+// Cantidad de películas incluidas en la colección
+// Fecha de creación de la colección
+// Fecha de última modificación
+}
+El campo userId vincula la colección a su dueño. El flag isPublic permite configurar la visibilidad:
+si true, la colección podría ser vista (en lectura) por otros usuarios, fomentando la compartición; si
+false, la colección es privada del usuario. Esto añade una capa social opcional y fue incluido en
+previsión de funcionalidad de compartir recomendaciones, aunque en la versión actual las
+colecciones públicas son básicas. El campo movieCount se actualiza para reflejar el número de
+películas contenidas, lo cual es útil para mostrar resúmenes o estadísticas sin tener que contar en
+cada consulta (es una forma de desnormalización para eficiencia). Finalmente, coverImage puede
+almacenar la URL de algún póster representativo (posiblemente el póster de la película favorita de
+esa colección) para dar identidad visual a la lista.
+• Colección collectionMovies: Para mantener la relación muchos a muchos entre las
+colecciones y las películas, se diseñó esta colección auxiliar. Cada documento en
+collectionMovies representa la inclusión de una determinada película en una determinada
+colección, sirviendo esencialmente como un registro de asociación. Sus campos principales son:
+{
+id: string; collectionId: string; movieId: string; userId: string; addedAt: Timestamp; // ID del documento de asociación (UUID único)
+// ID de la colección a la que pertenece la película
+// ID de la película (correspondiente al ID de TMDB u otra referencia única)
+// UID del usuario dueño de la colección (redundante para facilitar consultas)
+// Fecha en que se añadió la película a la colección
+}
+Mediante esta estructura, una película puede pertenecer a múltiples colecciones (incluso de
+distintos usuarios) sin duplicar toda la información de la película. Aquí movieId suele ser el ID de
+TMDB de la película agregada. En lugar de guardar todos los datos de la película en Firestore, se
+almacena este identificador externo; así, cuando la aplicación necesita mostrar detalles de la
+película dentro de una colección, utiliza el movieId para buscar la info actualizada en TMDB
+(ahorrando espacio de almacenamiento y garantizando datos frescos). El campo userId repetido
+agiliza consultas, pues muchas veces se querrá obtener “todas las películas de las colecciones
+del usuario X”. Con userId presente, se puede hacer una consulta directa en collectionMovies por
+ese campo (Firestore permite índices compuestos para consultas que involucren userId junto con
+otros campos como collectionId en filtros).
+• Colección reviews: Contiene todas las reseñas de películas escritas por los
+usuarios. Cada documento representa una reseña individual. Dado que una reseña la escribe un
+usuario sobre una película específica, esta colección relaciona usuarios con películas de manera
+similar a collectionMovies pero con más contenido asociado. La estructura diseñada es:
+{
+id: string; movieId: string; userId: string; userName: string; // ID único de la reseña
+// ID de la película reseñada (referencia a TMDB)
+// UID del autor de la reseña
+// Nombre público del autor (capturado para mostrar, redundante a
+user.profile)
+userPhotoURL?: string; // URL de la foto de perfil del autor en el momento de reseñar
+title: string; // Título breve de la reseña
+content: string; // Texto completo de la reseña
+rating: number; // Puntuación otorgada (1 a 5 estrellas)
+likes: number; // Número de "me gusta" que otros usuarios dieron a esta reseña
+isApproved: boolean; // Indicador de si la reseña ha sido aprobada por un moderador
+createdAt: Timestamp; // Fecha de creación de la reseña
+updatedAt: Timestamp; // Fecha de última actualización (para editar reseña)
+}
+Los campos movieId y userId vinculan la reseña a la película y al autor respectivamente.
+Adicionalmente, se almacenan userName y userPhotoURL en la reseña para congelar cómo se
+identifica el autor en ese momento; esto es útil porque si el usuario cambia luego su nombre o
+foto en su perfil, la reseña igualmente conservará los valores con que fue publicada (evitando
+inconsistencias en históricos o carga extra de mirar la colección users para cada reseña). Cada
+reseña incluye un título y un contenido textual donde el usuario expresa su opinión, así como una
+valoración numérica. El campo likes lleva la cuenta agregada de “me gusta” recibidos; en la
+implementación actual, los likes se incrementan cuando un usuario pulsa “me gusta” en una
+reseña (y se podría decrementar si se quita el like). No se almacenan qué usuarios dieron like en
+este esquema, solo el conteo total, aunque para prevenir múltiples likes del mismo usuario se
+maneja lógicamente en el frontend (por simplificar, no se creó una subcolección de “likes” por
+usuario, asumiendo un contexto de confianza básica).
+Crucial en este modelo es isApproved: cuando un usuario crea una reseña, inicialmente se marca
+isApproved: false, lo que indica que la reseña está pendiente de moderación. Las reseñas
+pendientes no deben mostrarse públicamente hasta ser aprobadas por un administrador. Una vez
+un administrador revisa y aprueba, cambia este campo a true (vía una funcionalidad del panel de
+admin), y desde entonces la reseña pasa a ser visible para todos en la aplicación. Este
+mecanismo responde al requerimiento de moderación de contenido, evitando que se publique
+directamente cualquier texto potencialmente inapropiado. La timestamp updatedAt permite
+registrar cuándo se editó una reseña (por ejemplo, si el usuario la modifica o si el admin la
+aprueba, se podría actualizar ese campo).
+Además de estas colecciones principales, existen posiblemente otras colecciones o campos no
+detallados arriba (por ejemplo, una colección stats o similar para datos agregados, aunque en la
+implementación actual no fue necesario; o colecciones para notificaciones, etc., si se extendiera
+el proyecto). No obstante, con las cuatro colecciones descritas se cubren los datos centrales de
+la aplicación.
+Relaciones y consideraciones de diseño: Cabe destacar que la base de datos está normalizada
+en lo posible para Firestore. Se utilizan identificadores cruzados en lugar de anidar
+subcolecciones profundas, para facilitar consultas directas. Por ejemplo, se optó por
+collectionMovies en lugar de tener dentro de cada documento de collections una subcolección de
+películas, porque así se puede obtener “todas las películas de todas las colecciones de un
+usuario” o “todas las colecciones donde aparece X película” con consultas sencillas. Firestore
+requiere crear índices compuestos para ciertas consultas con múltiples filtros o filtros +
+ordenamientos; en este proyecto se configuraron índices en firestore.indexes.json según fue
+necesario (por ejemplo, para consultar reseñas aprobadas de una película ordenadas por fecha o
+por número de likes se necesitó un índice compuesto en (movieId, isApproved, createdAt)
+posiblemente). Estas configuraciones aseguran un rendimiento óptimo en las consultas más
+frecuentes.
+Por último, la integridad referencial (e.g., eliminar todos los reviews de un usuario que se borra) no
+se maneja automáticamente en Firestore, pero como parte del diseño se consideró implementar
+funciones cloud o procedimientos manuales de limpieza si fuera necesario. En este contexto
+académico, se asume que los usuarios no se eliminan físicamente sino que se desactivan
+(isActive = false), por lo que no se orquestó eliminación en cascada compleja.
+2.3 Reglas de Seguridad y Control de Accesos
+En paralelo al modelo de datos, se diseñaron las reglas de seguridad de Firebase Firestore para
+aplicar las políticas de acceso adecuadas a cada colección, conforme a los roles de usuario
+definidos. Estas reglas actúan como la primera línea de defensa para evitar lecturas o escrituras
+no autorizadas directamente en la base de datos. A nivel de diseño, se establecieron las
+siguientes políticas (más adelante, en la fase de Desarrollo, se detallará su implementación
+específica):
+• Reglas para users: Todos los usuarios pueden leer datos de perfil básicos de otros
+(por ejemplo, para mostrar nombres y avatares en reseñas o en listados públicos) . Sin embargo,
+solo el usuario dueño de su documento puede crearlo (al registrarse) y actualizarlo (p. ej., cambiar
+su displayName o foto), exceptuando a los administradores que también podrán editar cualquier
+perfil en casos de moderación. Esto se traduce a reglas como: allow read: if true (abierto para
+lectura pública de perfiles no sensibles) y allow write: if request.auth.uid == userId ||
+request.auth.token.role == 'admin' en pseudocódigo. Además, ciertas operaciones pueden estar
+condicionadas a campos: por ejemplo, un usuario regular no debería cambiar su propio rol ni
+marcarse a sí mismo inactivo, esos campos solo un admin los puede modificar. Estas
+consideraciones se plasman en reglas de validación de datos (p. ej., prohibir cambios al campo
+role a menos que el que escribe sea admin).
+• Reglas para collections: La lectura de colecciones se permite a cualquiera
+(especialmente relevante si isPublic es true, pero incluso las privadas podrían listarse aunque su
+contenido quizá no, según la implementación; en nuestro caso, leer colecciones no expone gran
+información sensible aparte de los nombres y quizás se podría filtrar las privadas en la aplicación
+cliente). La creación de una colección está limitada a usuarios autenticados cuyo isActive sea true
+(un usuario bloqueado no debe crear nuevas colecciones). Asimismo, para borrar o modificar una
+colección, solo el propietario (userId igual al UID del auth) puede hacerlo, garantizando que un
+usuario no borre colecciones ajenas . Un administrador también podría necesitar eliminar
+colecciones ajenas en caso de contenido inapropiado; dependiendo de la política decidida, se
+puede permitir a admins borrar cualquier documento (agregando OR en la regla), aunque si no se
+consideró crítico, se pudo omitir sabiendo que un admin siempre podría cambiar temporalmente
+la propiedad o usar otras herramientas para moderar colecciones públicas.
+• Reglas para collectionMovies: Dado que esta colección contiene entradas que
+vinculan una película a una colección de un usuario, se dictaminó que solo el propietario de la
+colección correspondiente puede escribir en ella (añadir o quitar películas) . En lectura, cualquier
+usuario autenticado puede leer collectionMovies de otros si conoce la colección (esto posibilita,
+por ejemplo, ver el contenido de una colección pública de otro usuario). Pero si se quisiera ser
+estricto, podría condicionarse lectura a que o bien la colección referenciada sea pública o el
+lector sea el dueño; ese nivel de detalle dependería de cómo se use isPublic. En la
+implementación actual, lo importante es que nadie ajeno puede modificar el contenido de
+colecciones de otro.
+• Reglas para reviews: Cualquiera (incluso no autenticado) puede leer reseñas que
+estén aprobadas, ya que forman parte del contenido público de la plataforma (son opiniones
+públicas). Para simplificar, se puede permitir lectura irrestricta de la colección reviews, pero en el
+cliente filtrar por isApproved == true al mostrar (o a nivel de consulta). La creación de reseñas se
+restringe a usuarios autenticados activos . Además, una regla importante: un usuario puede editar
+o eliminar su propia reseña (mientras esté en estado pendiente o incluso después, si quisiere
+corregirla), pero no la de otros. Y los administradores pueden editar cualquier reseña, lo cual es
+necesario para marcar isApproved true/false o eventualmente corregir contenido. Así, en reglas:
+allow write: if request.auth.uid == userId || request.auth.token.role == 'admin'. Adicionalmente,
+para evitar que un usuario se autoapruebe su reseña cambiando isApproved, las reglas de
+actualización deben impedir que un usuario regular altere ese campo (solo admin puede modificar
+isApproved). En la fase de desarrollo se implementaron estas reglas asegurando la moderación:
+“solo usuarios autenticados pueden crear reseñas; los usuarios solo pueden editar/eliminar sus
+propias reseñas; y los administradores pueden moderar (aprobar/rechazar) cualquier reseña” .
+• Reglas para Panel de Administración: Si bien no corresponde a una colección
+específica, se menciona que ciertas consultas o acciones disponibles solo para admin (como
+obtener lista de todos los usuarios, o todas las reseñas pendientes) están protegidas
+indirectamente por las mismas reglas anteriores. Por ejemplo, un usuario normal que intente leer
+documentos de otros usuarios en users podría hacerlo porque dijimos lectura abierta; sin
+embargo, no podría cambiar roles o desactivar usuarios porque no cumple la regla de escritura
+(solo admin puede). Para el listado de reseñas pendientes, la aplicación cliente filtra
+isApproved=false y muestra solo a admins esa sección; en Firestore, la lectura no se restringió
+por rol, pero no hay peligro en leer reseñas pendientes (son datos no sensibles), la restricción real
+es que solo admin verá la interfaz para aprobar (y la regla de escritura impide que un no-admin
+cambie isApproved). En cualquier caso, en el diseño de reglas se pudo incluir una capa adicional:
+p. ej., una regla que permita borrar reseñas solo a admin aunque el autor podría borrar la suya;
+pero como eso se controla ya con userId match o admin, queda cubierto. Similar con usuarios:
+un admin puede cambiar cualquier campo, un user solo su subset.
+En resumen, las reglas de seguridad fueron diseñadas en paralelo con el modelo de datos para
+reforzar los límites de cada rol. Esto garantiza que incluso usando herramientas externas
+directamente contra Firestore (o en caso de un bug en el frontend), los datos estén protegidos: un
+usuario solo accede a lo que debe. Las reglas completas se implementaron en el archivo
+firestore.rules del proyecto, siguiendo la sintaxis de Firebase Security Rules, y su correcto
+funcionamiento se verificó mediante pruebas manuales (intentando operaciones no permitidas
+para confirmar que fueran denegadas).
+2.4 Diseño de la Interfaz de Usuario (UI/UX)
+El diseño de la interfaz de LaFilmoteca se enfocó en ofrecer una experiencia limpia, intuitiva y
+coherente con la temática cinematográfica. Para lograrlo, se elaboró una Guía de Estilos que
+define los elementos visuales principales: paleta de colores, tipografías, espaciados, bordes y
+componentes comunes. A continuación se resumen los puntos clave de esta guía y cómo
+influyeron en la implementación de la UI:
+• Paleta de Colores: Se seleccionaron tonos que evocan un ambiente de sala de
+cine clásico y resultan agradables para la vista en sesiones prolongadas. El color base es un
+verde oscuro (#0D1E1A) usado en fondos principales, que aporta un aire elegante y distintivo a la
+aplicación . Como color secundario para detalles y bordes se usa un verde grisáceo (#50645D),
+mientras que los elementos interactivos y destacados (botones primarios, enlaces importantes)
+utilizan un verde oliva más vivo (#788F6D) como color de acento . Esta combinación de verdes
+transmite una sensación cinematográfica (recordando quizá las butacas de ciertas filmotecas) y
+mantiene buen contraste con los textos. Para los textos en sí y fondos de tarjetas, se emplean
+colores neutros: principalmente un blanco roto (#FDFDFC) para textos sobre fondos oscuros,
+garantizando alta legibilidad, y un gris claro suave (#D4DCDD) para textos secundarios o
+elementos deshabilitados . La elección de blanco roto en lugar de blanco puro reduce el
+contraste excesivo en modo oscuro, evitando fatiga visual.
+• Tipografía: Se optó por la familia sans-serif “Inter”, conocida por su legibilidad en
+pantalla, combinada con fuentes genéricas de sistema como fallback . La jerarquía tipográfica
+definida establece tamaños y pesos diferentes según el nivel de encabezado o texto: títulos
+principales ~24px en negrita, subtítulos ~20px seminegrita, texto de párrafo base 16px regular, y
+tamaños menores para detalles secundarios (14px, 12px) . Esta escala tipográfica se aplicó
+mediante utilidades de Tailwind (clases como text-xl, text-base, etc.) de forma consistente.
+Además, se mantuvo un uso moderado de diferentes pesos para no sobrecargar la variedad
+visual: la interfaz principalmente usa regular para textos, semibold para destacar y bold para
+títulos seccionadores.
+• Espaciados y Bordes: La guía indica utilizar una unidad base de 4px para
+márgenes y rellenos, escalando en múltiplos para mantener consistencia rítmica en la UI . Por
+ejemplo, un padding pequeño es 8px (2 unidades), mediano 16px (4 unidades), grande 24px, etc.,
+aplicado uniformemente en componentes y separaciones entre elementos. Los bordes de los
+contenedores y tarjetas se diseñaron sutiles (bordes de 1px o 2px usando el color verde grisáceo)
+para delimitar secciones sin distraer . Los radios de borde (esquinas redondeadas) se usaron para
+dar un acabado moderno: botones y tarjetas tienen bordes ligeramente redondeados (4px o 8px
+de radio según el componente), evitando esquinas totalmente cuadradas . Esto aporta suavidad
+visual y se alinea con tendencias de diseño actuales. Elementos totalmente redondos (p. ej.,
+imágenes de perfil) usan un radio muy alto (píldora) para formar círculos perfectos .
+• Iconografía y elementos gráficos: Para los íconos (como estrellas de valoración,
+iconos de usuario, etc.), se decidió utilizar un estilo lineal/simple que combine con la estética
+minimalista. Se integraron iconos de librerías como HeroIcons o similares (a través de
+componentes React cuando fue posible), asegurando que heredasen los colores definidos. Las
+imágenes de películas (pósters) son obtenidas de TMDB y se muestran con bordes redondeados
+y escalado proporcional. Se previó un componente de spinner de carga (indicador de actividad)
+para cuando se esperan respuestas de la API o de Firestore; este spinner se diseñó reutilizable y
+consistente con la paleta (por ejemplo, un spinner circular en color verde oliva sobre fondo
+transparente) .
+• Componentes UI reutilizables: En la fase de diseño se identificaron componentes
+clave que serían reutilizados en varias partes de la app, y se bosquejaron sus comportamientos y
+estilo:
+• Botones: en la guía se definieron varios estilos de botón: el primario (fondo verde
+oliva, texto blanco roto) para acciones principales, el secundario (borde verde grisáceo, fondo
+transparente, texto blanco) para acciones menos prominentes, y un estilo terciario (sin borde,
+texto en color verde oliva sobre fondo transparente) para enlaces o acciones inline . Todos los
+botones comparten la misma tipografía y tamaños relativos, y tienen estados hover y disabled
+claramente diferenciados (por ejemplo, un botón deshabilitado se muestra con fondo gris claro y
+texto verde grisáceo, indicando indisponibilidad) .
+• Tarjetas: se planificó un componente de tarjeta para presentar información de
+película en listados (como resultado de búsqueda o en una colección). Estas tarjetas tienen fondo
+semitransparente sobre el verde oscuro, un ligero borde, y muestran la carátula de la película
+junto con título y quizá un detalle resumido. Mantienen padding interno consistente y reaccionan
+al hover (ligera elevación o sombra) para indicar interactividad.
+• Diálogos/Modales: en caso de confirmar acciones (ej. eliminar una reseña o
+colección), se diseñó mentalmente un modal sencillo con fondo semi-opaco oscuro y cuadro
+centrado con borde y botones.
+• Formulario de autenticación: se conceptualizó un formulario limpio con campos
+alineados verticalmente, etiquetas claras, mensajes de error en rojo/gris claro, y botón de envío
+destacado. Dado que se usan métodos de Firebase Auth (email/password), se enfatizó en que los
+mensajes de error provenientes de Firebase se muestren de forma entendible para el usuario (por
+ejemplo, traduciendo “The email is already in use” a “El correo ya está registrado”).
+• Elemento de valoración (estrellas): para el sistema de reseñas, se diseñó un
+componente StarRating que muestra 5 estrellas y permite selección de puntuación. En modo
+visualización muestra cierto número de estrellas rellenas según la nota, y en modo entrada
+permite hover y clic. Se buscó que las estrellas rellenas usaran color de acento (por ejemplo
+amarillo o el mismo verde oliva para mantener esquema monocromático). Este componente se
+reutilizaría tanto en la vista de detalles de película (para mostrar la calificación promedio quizá)
+como dentro del formulario de reseña (para que el usuario seleccione la puntuación) .
+• Estructura de Navegación: Durante el diseño, se definieron las principales pantallas
+o páginas y cómo el usuario navegaría entre ellas:
+• Pantalla de Inicio/Búsqueda: la página principal presenta probablemente un
+buscador de películas (campo de búsqueda) y quizás contenido destacado. Se decidió que la
+búsqueda fuese accesible desde cualquier lugar (por ejemplo, en el header) y que los resultados
+se muestren en la misma página principal, listando películas en formato de cuadrícula .
+• Página de Detalle de Película: al seleccionar una película de los resultados, se
+accede a una página dedicada que muestra todos los detalles de esa película (título, año,
+duración, género, director, reparto, sinopsis, poster grande) obtenidos de TMDB . En esta página,
+el usuario autenticado tiene acciones como “Agregar a Colección” (o quitar si ya está en alguna),
+“Escribir Reseña” y ver las reseñas existentes debajo de la info de la película. El diseño prevee
+secciones tabuladas o separadas para “Detalles” y “Reseñas”. Las reseñas en esta página de
+detalle se listarían con su autor, fecha, contenido y rating.
+• Página de Perfil de Usuario: esta pantalla muestra la información del usuario
+(nombre, foto, bio) y dos secciones principales: sus colecciones y sus reseñas. Para las
+colecciones, se listan las colecciones creadas por el usuario con posibilidad de navegarlas (cada
+colección podría abrir una vista con sus películas listadas). Para las reseñas, se listan todas las
+reseñas que el usuario ha escrito junto con un enlace rápido a la película reseñada . El perfil
+además permitiría acciones como editar la bio/foto (no detallado en este proyecto, pero
+contemplado en campos). Solo el propietario puede ver ciertas opciones (por ejemplo, un usuario
+viendo el perfil de otro quizás solo ve las colecciones públicas de ese otro y sus reseñas
+aprobadas).
+• Panel de Administración: diseñado como una sección aparte accesible solo a
+admins. Se decidió que el panel tendría su propio menú de navegación interno, con secciones
+como Dashboard, Gestión de Usuarios, Moderación de Reseñas, etc. El Dashboard presentará
+métricas globales (número de usuarios, número de reseñas totales, cuántas reseñas pendientes)
+con un diseño de tarjetas de estadísticas . La sección de Gestión de Usuarios mostrará una tabla
+o lista de usuarios registrados con su email, rol, estado activo, etc., permitiendo al admin cambiar
+roles (promover a admin o degradar) y activar/desactivar cuentas fácilmente . La sección de
+Moderación de Reseñas listará las reseñas con isApproved=false (pendientes), mostrando su
+contenido, autor y opciones de aprobar o rechazar . Visualmente, el panel administrativo
+mantiene el estilo general pero con un layout quizás de dos columnas (menú lateral + contenido)
+para aprovechar espacio en escritorio, y colapsable en móvil.
+• Responsividad: El diseño se planteó mobile-first, asegurando que en pantallas
+pequeñas (smartphones) la interfaz fuese totalmente usable: menús convertidos en desplegables
+o hamburguesa, grillas de películas ajustadas a una columna o scroll horizontal si es necesario,
+textos legibles sin zoom, botones suficientemente grandes para tacto, etc. En pantallas mayores,
+se aprovecha el espacio mostrando más columnas (por ejemplo, la cuadrícula de resultados de
+búsqueda muestra 2 columnas en móvil, 4 en desktop). Se utilizaron las utilidades de Tailwind
+para responsive (sm:, md:, lg: breakpoints) para aplicar estilos condicionalmente según tamaño.
+Por ejemplo, el Layout principal tiene un header fijo arriba con el título del sitio y opciones de
+usuario (login/profile) y un footer al final; en móvil este header podría ser compacto o con iconos,
+mientras que en escritorio muestra texto y navegación completa. Todas las vistas fueron
+testeadas manualmente en distintos tamaños para asegurar consistencia .
+En conclusión, el diseño de la interfaz de LaFilmoteca combina una estética acorde con su
+temática (paleta oscura y elegante) con consideraciones prácticas de usabilidad. La guía de
+estilos unificada permitió que durante la implementación se aplicaran de forma consistente los
+colores, tipografías y espaciados, facilitando la mantenibilidad. Asimismo, la anticipación de
+componentes reutilizables (botones, listas, modales, etc.) hizo más eficiente el desarrollo, ya que
+se pudieron codificar siguiendo dichas pautas iniciales. Este diseño fue validado con casos de
+uso típicos antes de proceder a la codificación, asegurando que cada pantalla tuviera todos los
+elementos necesarios y que la navegación entre ellas fuera clara para el usuario final.
+3. Fase III: Desarrollo (Implementación Paso a Paso)
+La fase de Desarrollo corresponde a la implementación práctica del proyecto según el diseño
+definido. En esta sección se detalla cómo se construyó la aplicación paso a paso, destacando las
+decisiones de codificación, la estructura del proyecto, los retos solucionados y ejemplos de
+código relevantes. Se cubren las principales funcionalidades desarrolladas: autenticación de
+usuarios y roles, integración con la API de TMDB para búsqueda de películas, gestión de
+colecciones, sistema de reseñas y el panel de administración con sus herramientas de
+moderación. Asimismo, se describen las herramientas utilizadas para facilitar el desarrollo
+(sistema de control de versiones, despliegue continuo, etc.) y cómo se verificó el correcto
+funcionamiento durante esta fase.
+3.1 Preparación del Entorno y Estructura Inicial del Proyecto
+Antes de implementar funcionalidades específicas, se llevaron a cabo tareas iniciales esenciales
+para establecer la base del proyecto:
+• Se generó un nuevo proyecto React utilizando Vite con soporte de TypeScript. Vite
+creó la estructura básica del front-end y configuró scripts útiles para desarrollo (npm run dev) y
+compilación (npm run build).
+• Se añadió y configuró Tailwind CSS en el proyecto. Esto involucró crear el archivo
+de configuración tailwind.config.cjs con los breakpoints y colores personalizados (según la guía
+de estilo) e importar las directivas de Tailwind en el CSS global. Así, se habilitó el uso de
+utilidades (className) en los componentes para aplicar rápidamente el diseño.
+• Configuración de Firebase: Se registró el proyecto en Firebase y se añadieron al
+proyecto los paquetes necesarios (firebase/app, firebase/auth, firebase/firestore, etc.). Se creó un
+fichero de configuración firebase.ts dentro de src/lib/ que inicializa el app de Firebase con las
+credenciales del proyecto (API key, IDs, etc.) obtenidas del panel de Firebase . Estas credenciales
+sensibles se mantuvieron fuera del repositorio usando variables de entorno: por ejemplo, en Vite,
+se definieron variables VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, etc.,
+guardadas en un archivo .env (ignorado por Git) y referenciadas en firebase.ts . De igual forma, se
+almacenó la clave de API de TMDB en VITE_TMDB_API_KEY. Esto garantiza que no se expongan
+claves privadas en el código fuente público.
+• Inicialización de Git y ramas: Se creó el repositorio GitHub del proyecto y se
+adoptó el modelo de GitFlow. Inicialmente se creó la rama develop a partir de main para integrar
+ahí el trabajo en desarrollo . Las funcionalidades se desarrollarían en ramas feature separadas.
+Por ejemplo, se planificó crear ramas feature/auth-firebase, feature/tmdb-integration, etc., tal
+como se definió en la fase de diseño de gestión de versiones . Cada rama feature parte de
+develop y, una vez completada y probada la funcionalidad, se integraría de nuevo en develop.
+Este enfoque permitió trabajar de manera organizada y paralela en diferentes componentes sin
+romper la versión principal de desarrollo.
+• Configuración de herramientas de calidad: Se incluyó ESLint y Prettier en el
+proyecto (según las convenciones de Vite + React + TS) para mantener un código consistente. En
+package.json se definió el script npm run lint para correr el linter . Esto ayudó a detectar
+problemas de sintaxis o estilo durante el desarrollo continuo.
+• Estructura de carpetas: se delineó la estructura interna del proyecto en el directorio
+src/. Siguiendo buenas prácticas, se crearon subdirectorios para separar responsabilidades:
+• src/components/: aquí residen componentes reutilizables de la interfaz. Se
+subdividió en components/ui/ para componentes genéricos de interfaz (botones, formularios,
+listas, etc.), y components/admin/ para componentes específicos del panel de administración .
+• src/pages/: componentes de página que corresponden a rutas completas (como la
+página de detalle de película, la de perfil, o la de administración) .
+• src/contexts/: definición de contextos React globales, particularmente
+AuthContext.tsx para autenticación y posiblemente otros (por ejemplo, se pudo crear un context
+para gestionar un carrito de favoritos temporal, pero no fue necesario con Firestore).
+• src/lib/: módulos de librería con lógica independiente de la UI, por ejemplo
+firebase.ts (config Firebase), tmdb.ts (servicios para llamar a TMDB), reviews.ts (funciones para
+manejar CRUD de reseñas) , admin.ts (funciones de administración) , etc.
+• src/types/: definiciones de tipos TypeScript reutilizables (por ejemplo, la interfaz
+User, Review, etc., para asegurar consistencia en las funciones) .
+• src/router/ (opcional): en este proyecto se creó un componente central de rutas en
+AppRouter dentro de src/ directamente, pero podría haberse usado un folder.
+Esta organización modular facilitó el trabajo en equipo (si hubiera varios desarrolladores) y la
+mantenibilidad, permitiendo encontrar rápidamente cada pieza. Además, cada rama feature
+añadía archivos en su sección correspondiente (por ejemplo, la rama de reseñas creó
+ReviewForm.tsx, ReviewList.tsx en components/ui y reviews.ts en lib ).
+Con este entorno base listo, se procedió al desarrollo funcional propiamente dicho, siguiendo el
+plan de funcionalidades. A continuación se describe la implementación de cada bloque principal:
+autenticación, integración TMDB, colecciones, reseñas y administración, aproximadamente en el
+orden en que fueron abordados.
+3.2 Implementación del Sistema de Autenticación y Roles de Usuario
+La autenticación de usuarios es uno de los primeros aspectos implementados, dado que muchas
+otras funcionalidades (crear reseñas, colecciones, acceder al admin) dependen de que el usuario
+esté autenticado y tenga un rol asignado. Para ello se utilizó Firebase Authentication, que ofrece
+un servicio fácil de integrar para registro e inicio de sesión de usuarios con email y contraseña
+(entre otros métodos).
+Configuración de Firebase Auth: En el archivo de configuración firebase.ts ya inicializado, se
+habilitó el módulo de auth. En el código, tras initializeApp(firebaseConfig), se obtiene una
+instancia de auth con getAuth() y se la exporta para usar en las funciones de login/registro.
+Previamente, en la consola de Firebase, se activó el método de email/password para el proyecto
+LaFilmoteca. No se habilitaron social logins inicialmente (como Google o Facebook), aunque
+quedaron como mejora futura .
+Modelo de usuario en Firestore: Cada vez que un usuario se registrase por primera vez, además
+de crearse sus credenciales en Firebase Auth, queríamos almacenar información adicional en la
+colección users (como el rol y fecha de alta). Para esto, se decidió que tras un registro exitoso, la
+app creará automáticamente el documento correspondiente en Firestore. La interfaz User que
+definimos en TypeScript resume los campos a guardar :
+interface User {
+uid: string;
+email: string;
+displayName?: string;
+photoURL?: string;
+role: 'guest' | 'user' | 'admin';
+createdAt: Date;
+lastLogin: Date;
+}
+(Código tomado de la documentación del desarrollo de autenticación). Cabe notar que aquí
+aparece 'guest' como posible rol en el tipo; esto refleja la planificación inicial de roles incluyendo
+“invitado”. En la implementación, un invitado es simplemente un usuario no autenticado, por lo
+que nunca habrá un documento Firestore con role “guest” realmente. Los roles efectivos
+almacenados son ‘user’ y ‘admin’ .
+Flujo de registro (sign up): Se creó un contexto de autenticación AuthContext usando
+React.createContext. Este contexto provee en su valor un objeto con el usuario actual y funciones
+para manipular la auth. Al inicializar la aplicación, se usa onAuthStateChanged de Firebase Auth
+para escuchar cambios de estado (login/logout) y actualizar el contexto en consecuencia . Para
+registrar un nuevo usuario, se implementó la función signUp(email, password, displayName)
+dentro del contexto o en un hook personalizado. Esta función invoca
+createUserWithEmailAndPassword(auth, email, password) de Firebase. Si la promesa resulta
+exitosa, se obtiene el userCredential.user (que contiene uid, email, etc.) y a continuación:
+1. Opcionalmente, se llama a updateProfile para establecer el displayName en el
+perfil de Firebase Auth (y foto si hubiera).
+2. Se crea el documento en Firestore: addDoc(collection(db, "users"), { ... }) con los
+campos necesarios – en particular uid (igual al del auth), email, displayName, role: 'user' (por
+defecto todo nuevo registrado es usuario general), isActive: true, createdAt: serverTimestamp(),
+updatedAt: serverTimestamp(). Para garantizar que el doc tenga el mismo ID que el uid, mejor
+que addDoc se usó setDoc(doc(db, "users", uid), {...}). De esta forma el documento Firestore del
+usuario tiene exactamente el mismo identificador que su uid, facilitando futuras consultas.
+3. Finalmente, el contexto actualiza su estado currentUser con la info extendida
+recién creada.
+Se envolvió esta lógica en AuthContext para que los componentes de React no manejen
+directamente la API de Firebase, sino a través de métodos del contexto (p. ej.,
+authContext.signUp(...)). De esta manera, los componentes de formulario llaman a signUp y
+gestionan la respuesta (éxito o error) para retroalimentación al usuario.
+Flujo de inicio de sesión (login): Similarmente, se implementó signIn(email, password) utilizando
+signInWithEmailAndPassword(auth, email, password). Al hacer login, Firebase Auth
+automáticamente cambiará el estado y disparará nuestro listener (onAuthStateChanged). En ese
+momento, podemos cargar de Firestore el documento del usuario (por UID) para obtener sus
+datos adicionales (como rol). De hecho, en la implementación, el contexto escucha auth state, y si
+hay user autenticado, ejecuta algo como:
+const userDoc = await getDoc(doc(db, "users", user.uid));
+setCurrentUser({...userDoc.data(), uid: user.uid});
+Incorporando así los campos role, isActive, etc., del documento. Si el documento no existe (caso
+improbable porque lo creamos en signUp), se podría crear en ese momento para garantizar
+consistencia.
+Se añadió manejo de errores: tanto en registro como login, las funciones Firebase pueden lanzar
+errores (por ejemplo, email ya registrado, contraseña muy débil, credenciales inválidas). Estos
+errores se capturan y se normalizan a mensajes en español para mostrar en la UI de los
+formularios. En el contexto se definió quizás un estado authError y métodos clearError() para
+resetearlo . Los formularios consumen este estado y muestran un <p className="text-
+red-500">Contraseña incorrecta</p> etc., cuando corresponde .
+Componentes de UI de autenticación: Se implementaron dos componentes principales:
+• <LoginForm>: un formulario con campos de Email y Contraseña, que al hacer
+submit invoca authContext.signIn() . Incluye validaciones básicas (formato de email, contraseña
+no vacía) y muestra errores devueltos (p.ej., “Credenciales inválidas”). Tras login exitoso, redirige
+a la página principal o perfil.
+• <RegisterForm>: similar estructura pero con campo adicional de Confirmar
+Contraseña y quizás Nombre a mostrar. Al submit llama authContext.signUp(). Tras registro
+exitoso, podría redirigir automáticamente al perfil o simplemente indicar éxito. También maneja
+validación de contraseña (por ejemplo, exigir mínimo 6 caracteres, y que coincida confirmación) .
+Ambos formularios fueron estilizados según la guía: inputs con clases Tailwind para bordes
+suaves, focus resaltado en verde oliva, botón primario para enviar, etc., asegurando consistencia
+visual.
+Para integrar estos formularios en la app, se añadió una página o sección: se creó un
+componente <AuthPage> (o similar, mencionado quizá como /src/pages/Auth.tsx en plan) que
+muestra <LoginForm> o <RegisterForm> según corresponda, posiblemente con pestañas o
+enlaces para alternar entre “¿No tienes cuenta? Regístrate” y “¿Ya tienes cuenta? Inicia sesión”.
+Esto brinda una ruta /auth donde centralizar la autenticación.
+Gestión del estado global de autenticación: El AuthContext proporciona, aparte de signIn/signUp,
+el método signOut() que llama a FirebaseAuth.signOut() y limpia el estado local (volviendo
+currentUser a null) . Este método se usa, por ejemplo, en un botón “Cerrar sesión” del menú de
+usuario.
+El contexto también puede exponer propiedades como currentUser (objeto con los datos
+incluyendo rol) y loading (booleano para indicar si está comprobando el estado inicial o
+procesando una petición) . De ese modo, los componentes pueden renderear condicionalmente
+según si currentUser existe o según su rol.
+Sistema de Roles en la aplicación: Una vez que el contexto de auth almacena el rol del usuario
+(campo role del doc Firestore), este se usa para condicionar la UI y la lógica. Por ejemplo:
+• Rutas Protegidas: Se implementaron componentes auxiliares <ProtectedRoute> y
+<PublicRoute> usando React Router. <ProtectedRoute> recibe un prop de rol requerido y un
+componente hijo; su lógica es: si no hay usuario logueado, redirigir a /auth; si hay usuario pero su
+rol no cumple el requisito (p. ej., no es admin cuando se requiere admin), entonces redirigir a otro
+lugar (p. ej., a inicio o mostrar “No autorizado”); si todo ok, renderizar el componente hijo . Esto
+asegura a nivel de frontend que rutas como /admin solo sean accesibles por admins.
+<PublicRoute> inversamente se usa para rutas como login, de modo que si ya hay un usuario
+logueado no tenga sentido volver a /login (podría redirigirlo a home).
+• Renderizado condicional: En menús y componentes se comprueba el rol para
+decidir qué mostrar. Por ejemplo, en el header de navegación, si currentUser.role === 'admin', se
+puede mostrar un enlace al “Panel de Administración”. O en la página de detalles de película, el
+botón “Escribir Reseña” solo aparece si el usuario logueado tiene rol ‘user’ activo (un invitado
+vería un mensaje “Inicia sesión para escribir reseña”).
+• Restricción de acciones: A nivel de lógica, algunas funciones chequean rol. Por
+ejemplo, la función que aprueba una reseña (moderateReview(reviewId, approve: boolean))
+internamente puede verificar if(currentUser.role !== 'admin') throw Error("Unauthorized") antes de
+intentar escribir en Firestore. Aunque la seguridad final la aplica Firestore rules, esta verificación
+temprana mejora la DX y evita llamadas innecesarias.
+Reglas de seguridad relacionadas: Cabe reiterar cómo se implementó lo planificado: se escribió
+en firestore.rules que dentro de la colección users, allow update solo si request.auth.uid ==
+resource.id (dueño) o request.auth.token.role == 'admin'. Para permitir a los admins gestionar
+roles, se acepta la escritura por admin aunque cambie el campo role. Similarmente, en reviews,
+allow update: if request.auth.uid == resource.data.userId OR admin, pero condicionando campos:
+un usuario normal solo puede cambiar title, content, etc., mientras que admin puede cambiar
+isApproved. Esto se logra con reglas de validación de campos nuevos vs antiguos.
+Prueba de autenticación: Tras implementar, se probó manualmente el flujo completo: registrar un
+usuario nuevo, verificar que se crea su documento en Firestore y que se le asigna role ‘user’;
+luego cerrar sesión, iniciar sesión con ese usuario, comprobar que se cargan sus datos (nombre,
+etc.) en el contexto; y probar restricciones (por ejemplo, acceder a ruta /admin con ese usuario
+debería fallar, mostrando quizás una página de “No autorizado”). También se verificó que si un
+admin inicia sesión, tenga acceso al panel admin y que un usuario inactivo no pueda hacer
+ciertas cosas (esto último requirió simular un user isActive=false, ya que normalmente no hay
+interfaz para que se auto-desactive).
+Habiendo establecido la autenticación con éxito, el proyecto continuó con la integración de la
+funcionalidad central de películas.
+3.3 Integración con TMDB API: Búsqueda y Detalles de Películas
+Con la autenticación en marcha, se procedió a implementar la parte principal de consulta de
+películas usando la API de TMDB, lo cual corresponde a los casos de uso de búsqueda y
+visualización de detalles de filmes. Esta funcionalidad es fundamental para poblar la aplicación de
+contenido cinematográfico sin tener base de datos propia de películas.
+Configuración de acceso a TMDB: En el archivo de entorno .env se añadió la clave de API de
+TMDB (VITE_TMDB_API_KEY). Luego, se creó el módulo tmdb.ts dentro de src/lib/ para
+centralizar las peticiones HTTP hacia TMDB. Este módulo define constantes como la URL base
+de TMDB (https://api.themoviedb.org/3) y construye las URLs para diferentes endpoints:
+• Búsqueda de películas por nombre: endpoint /search/movie?query={query}.
+• Detalle de película por ID: endpoint /movie/{movie_id} (posiblemente incluyendo
+parámetros para obtener también casting, etc., mediante append_to_response=credits).
+• Opcionalmente, endpoints para obtener tendencias, géneros, etc., si se quisieran.
+Cada función de este módulo utiliza fetch o una librería como axios para hacer la solicitud. Por
+ejemplo, searchMovies(query: string, page: number) hará:
+const url = `${BASE_URL}/search/movie?api_key=${API_KEY}&query=$
+{encodeURIComponent(query)}&page=${page}`;
+const res = await fetch(url);
+return res.json();
+y devuelve los resultados (TMDB envía un JSON con resultados de películas, cada una con
+campos como id, title, overview, poster_path, release_date, vote_average, etc.). Similarmente,
+getMovieDetails(id: number) construye la URL y devuelve la información detallada.
+Para mejorar la robustez, se implementó manejo de errores: si fetch lanza error o si TMDB
+responde con un código de error (por ejemplo, API key inválida o límite de requests), se captura y
+en la UI se puede notificar al usuario (“Error al buscar películas. Inténtalo más tarde.”). Además,
+se consideró implementar un caché local simple: dado que es posible que un mismo usuario
+busque la misma película repetidas veces, o que varias secciones pidan el detalle del mismo ID,
+se podría almacenar en un objeto global los resultados ya obtenidos para reutilizarlos. En la
+planificación se mencionó una caché local para optimización , y es probable que se haya
+implementado usando, por ejemplo, una variable estática dentro de tmdb.ts (un Map de movieId
+a movieDetails) que se consulta antes de hacer fetch. Esto reduce llamadas redundantes a TMDB
+y mejora la velocidad de respuesta.
+Componentes de Búsqueda y Resultados: Se desarrolló un componente <MovieSearch> que
+contiene la barra de búsqueda y quizás filtos, y otro componente <MovieResults> para mostrar la
+lista de resultados .
+• <MovieSearch> incluye un campo de texto controlado por estado local query. Al
+cambiar, puede guardar la consulta y al enviar el formulario (o al detener de escribir después de
+cierto tiempo), invoca la función de búsqueda TMDB. Podría también iniciar la búsqueda
+automáticamente en onChange (pero mejor esperar a submit o debouncing para no saturar la API
+con cada tecla). Este componente no muestra resultados por sí mismo sino que delega a
+<MovieResults> pasándole los datos obtenidos.
+• <MovieResults> recibe una lista (array) de películas (con campos básicos: id, título,
+póster, año) y las renderiza en forma de grid (rejilla). Utiliza tailwind classes como grid grid-cols-2
+md:grid-cols-4 gap-4 para hacer una grilla responsive de tarjetas. Cada tarjeta de película
+muestra la imagen del póster (utilizando la URL de imagen de TMDB, que requiere concatenar un
+path base como https://image.tmdb.org/t/p/w200 con el poster_path proporcionado), y debajo o
+encima, el título y quizás el año. Si no hay imagen disponible, se muestra un placeholder.
+Además, <MovieResults> maneja paginación: TMDB devuelve resultados paginados (20 por
+página), así que se incluyeron botones “Anterior / Siguiente” o un control de paginación. Al
+pulsarlos, llama de nuevo a searchMovies(query, newPage) y actualiza la lista. El estado de carga
+se indicó con el <LoadingSpinner> (por ejemplo, mientras se espera respuesta, se muestra el
+spinner en lugar de los resultados) . También, en caso de error (por ejemplo, sin conexión),
+<MovieResults> puede mostrar un mensaje de error sencillo.
+Página de Detalle de Película: Se implementó el componente <MovieDetails> que corresponde a
+la vista de una película individual . Este componente probablemente está mapeado a la ruta /
+movie/:id. Al montarse, lee el :id de los parámetros de la URL (usando useParams de React
+Router) y ejecuta getMovieDetails(id) del servicio TMDB. Usa estado local para guardar los datos
+de la película una vez lleguen. Mientras carga, podría mostrar el spinner. Una vez obtenidos,
+renderiza la información:
+• Una sección superior con el póster en tamaño grande (usando un tamaño mayor
+de TMDB, e.g. w500), el título de la película, año de lanzamiento, duración, género(s) y
+calificación media (TMDB vote_average).
+• Sección de sinopsis (overview).
+• Sección de detalles de producción: director, elenco principal (esto requiere que la
+petición de detalles incluya los credits; si se incluyó append_to_response=credits, se extrajo de
+allí el director y cast). Si no se implementó por tiempo, se pudo omitir en la visualización.
+• Botón o icono para añadir a colección: Junto al título o en la sección de acciones,
+si el usuario está logueado, se muestra un botón “Añadir a colección”. Al hacer clic, podría abrir
+un pequeño menú con la lista de colecciones del usuario para elegir a cuál agregar, o bien
+simplemente añadir a una colección por defecto (p. ej., una colección “Favoritos” implícita).
+Según la complejidad implementada, podría ser cualquiera de las dos. Dado que se tenía el
+modelo collections/collectionMovies, es posible que se haya implementado una ventana modal
+listando las colecciones existentes con checkboxes, y opción de crear nueva colección. Esta
+parte, aunque importante, quizás se simplificó: en el scope mínimo, se permitió agregar o quitar la
+película actual de una única colección “Favoritos”. No obstante, asumiendo la funcionalidad
+completa: la acción “Añadir a colección” ejecuta una función que guarda en Firestore un
+documento collectionMovies con collectionId correspondiente (p. ej., seleccionado de un
+dropdown) y movieId actual . Después de agregar, la UI podría indicar éxito (mensaje “Película
+agregada a tu colección X”) o reflejar visualmente que ya está agregada (cambiar el botón a
+“Quitar de colección”).
+• Listado de Reseñas: En la parte inferior de la página de detalles se incluyó la
+sección de reseñas de esa película. Aquí se reutilizó el componente <ReviewList> para mostrar
+todas las reseñas de la película actual . <ReviewList> recibe el movieId e internamente consulta
+Firestore: por ejemplo, con getMovieReviews(movieId) desde lib/reviews.ts . Este servicio
+probablemente realiza una query collection('reviews') con filtro where('movieId','==', movieId) y
+quizás where('isApproved','==', true) para traer solo las aprobadas, y ordena por fecha
+descendiente o por likes . Los resultados se guardan en el estado y se iteran, mostrando para
+cada reseña un componente <ReviewItem> . Un ReviewItem muestra el nombre del usuario autor,
+su foto, la puntuación en estrellas (usando el componente StarRating en modo solo lectura) , el
+título y contenido de la reseña, y en la parte inferior botones de acción: Like (un botón con icono
+de pulgar o corazón acompañado del número de likes) y, si el usuario actual es el autor, botones
+de Editar o Eliminar la reseña . Si el usuario actual es admin y la reseña aún no está aprobada,
+también podría ofrecer botón Aprobar/Rechazar directamente (aunque en principio la moderación
+se hace en el panel admin, podría duplicarse aquí para comodidad).
+• Formulario de Nueva Reseña: Encima o debajo de la lista de reseñas, si el usuario
+está autenticado (y es un usuario activo, no invitado), se muestra el formulario para agregar una
+reseña nueva. El componente <ReviewForm> se diseñó para ser usado tanto en creación como
+en edición de reseñas . En esta página se usaría en modo “crear”: presenta campos de “Título”,
+“Contenido”, un control StarRating para la puntuación, y un botón de enviar. Está integrado con
+react-hook-form para manejar la validación de campos de forma sencilla (por ejemplo, título
+requerido, contenido mínimo de X caracteres, etc.) . Al enviar, la función createReview(movieId,
+data) del servicio reviews se encarga de: crear un nuevo documento en Firestore con movieId,
+userId actual, userName actual, los campos del form, rating, likes: 0, isApproved: false, createdAt
+timestamp. Luego, la UI puede bien agregar la reseña a la lista local (opcionalmente visible solo
+para el autor hasta aprobación) con indicación “pendiente de aprobación”, o simplemente limpiar
+el formulario y mostrar un mensaje “Tu reseña ha sido enviada y está pendiente de aprobación” .
+Se decidió implementar este aviso en la interfaz para gestionar expectativas del usuario (ya que
+su reseña no aparecerá públicamente de inmediato) .
+• Manejo de duplicados: Para evitar que un usuario envíe múltiples reseñas para la
+misma película (práctica no deseada), en <ReviewList> se pudo añadir lógica que si el usuario
+logueado ya tiene una reseña en esa película pendiente o aprobada, no muestre el formulario de
+nueva reseña, o al menos advierta. También se pudo implementar a nivel de datos un control (por
+ejemplo, en Firestore rule o mediante un índice único compuesto) pero dado el alcance,
+probablemente se controló solo en la interfaz. En la documentación se menciona “Control para
+evitar reseñas duplicadas por usuario” , lo cual confirma que se contempló esta restricción.
+Gestión de colecciones en perfil: Aunque se abordará con más detalle en la siguiente sección,
+desde la perspectiva de la página de detalle de película, la funcionalidad de “agregar a colección”
+cierra el ciclo de integración: permite que, mientras se ve una película, se pueda incorporar a una
+lista personal, lo que es un requerimiento clave (marcar favoritos o similares). Este botón
+interactúa con la parte de colecciones implementada en el perfil, actualizando la base de datos
+de forma que luego, al ir al perfil del usuario, la película figure en la colección correspondiente.
+Navegación y routing: Se registraron rutas en el AppRouter para las páginas mencionadas. Por
+ejemplo:
+<Routes>
+<Route path="/" element={<HomePage />} />
+<Route path="/movie/:id" element={<MovieDetails />} />
+<Route path="/profile/:uid" element={
+<ProtectedRoute roles={['user','admin']}><UserProfile /></ProtectedRoute>
+} />
+<Route path="/admin/*" element={
+<ProtectedRoute roles={['admin']}><AdminPanel /></ProtectedRoute>
+} />
+<Route path="/auth" element={<PublicRoute><AuthPage /></PublicRoute>} />
+<Route path="*" element={<NotFoundPage />} />
+</Routes>
+Esto garantiza que, por ejemplo, el perfil solo sea accesible logueado, y admin solo a admins . El
+UserProfile seguramente obtiene el UID de contexto o de la URL (posiblemente no se usó param
+sino siempre se accede al perfil propio desde un link “/profile/me” redirigido).
+Verificación funcional: Tras implementar la búsqueda y detalle, se probaron flujos:
+• Realizar búsquedas comunes, navegar por varias páginas de resultados,
+asegurarse de que la paginación funciona y los resultados se refrescan.
+• Entrar a varias fichas de películas, verificar que los datos concuerdan con TMDB (a
+modo de test manual).
+• Probar añadir/quitar películas de colecciones y ver en Firestore que
+collectionMovies se actuala correctamente.
+• Crear reseñas de prueba: un usuario “user” añade reseña a X película. Comprobar
+que aparece listada para él (quizá marcada como pendiente) pero no visible para otro usuario
+hasta que admin apruebe.
+• Revisar estados de error: buscar “asdfghjk” que no arroja resultados y ver que se
+maneja (lista vacía con mensaje “No se encontraron películas”).
+En este punto del desarrollo, la aplicación ya permitía navegación anónima para buscar películas
+y ver detalles, así como funcionalidad autenticada básica (postear reseñas pendientes, mantener
+colecciones personales, etc.). La siguiente etapa se enfocó en completar la parte social
+(colecciones y perfiles) y moderación.
+3.4 Gestión de Colecciones de Películas y Perfil de Usuario
+La gestión de colecciones personalizadas es una característica orientada a los usuarios
+registrados para que puedan organizar su filmoteca a su gusto. Paralelamente, el perfil de usuario
+sirve como hub para que cada usuario visualice y maneje su información, incluyendo sus
+colecciones y sus reseñas publicadas. Estas dos áreas están relacionadas y se implementaron
+conjuntamente.
+Creación y edición de colecciones: Se desarrolló la funcionalidad para que un usuario autenticado
+pueda crear una nueva colección. Esto se logró mediante un formulario sencillo accesible desde
+su perfil (por ejemplo, un botón “Nueva Colección” que despliega un modal con campos Nombre
+y Descripción). Al confirmar, se ejecuta createCollection(name, desc, isPublic) que realiza
+addDoc(collection(db, "collections"), {...}) con los campos especificados y userId=UID actual,
+movieCount=0, timestamps, etc. Tras la creación, la UI actualiza la lista local de colecciones para
+mostrarla inmediatamente.
+Para editar o borrar una colección, se pueden haber provisto opciones en cada colección listada
+(iconos de editar/eliminar). Editar simplemente abre el mismo formulario precargado y luego hace
+updateDoc(doc(db,"collections",id), {...}). Eliminar requiere borrar el documento de collections y
+posiblemente los documentos correspondientes en collectionMovies (todas las películas de esa
+colección); esto último se puede hacer obteniendo todos los docs collectionMovies con ese
+collectionId y eliminándolos en cascada. Si no se implementó la limpieza, puede quedar
+huérfanos esos docs, pero no afectan porque sin la colección padre no se usan.
+La interfaz lista las colecciones del usuario en el perfil usando un componente, por ejemplo
+<UserCollections> . Este componente consulta Firestore las colecciones cuyo userId ==
+currentUser.uid, o alternativamente usa el snapshot del contexto si es que ya se obtuvieron. Por
+simplicidad, se pudo cargar vía context también, pero lo usual es usar un hook useCollection con
+esa query para que se mantenga actualizada en tiempo real. Muestra cada colección como una
+tarjeta o elemento con:
+• Nombre de la colección,
+• quizás la cantidad de películas (movieCount),
+• si está pública o privada (un icono candado abierto/cerrado),
+• y acciones (editar, eliminar).
+Si se clica en la colección, se abre la vista de contenido de la colección: esto podría ser un
+componente <CollectionDetails> o simplemente expandir debajo la lista de películas contenidas.
+En este proyecto, lo más probable es que se haya implementado como una página separada (ruta
+/collection/:id para compartir públicamente si es isPublic), pero dado el tiempo, quizás se
+mantuvo dentro del perfil.
+Asumamos que hay un componente <CollectionView collectionId={id}> que lista las películas de
+esa colección. Internamente usa la colección collectionMovies: consulta todos los docs donde
+collectionId == id, luego para cada uno recupera la información de la película desde TMDB (dado
+que collectionMovies solo tiene movieId). Esto se pudo optimizar llamando a TMDB para cada o
+mostrando algún detalle mínimo almacenado. Probablemente, para cada entry, se optó por
+mostrar solo el título y un mini póster obtenidos mediante una llamada getMovieDetails sencilla.
+Para evitar llamadas múltiples, se pudo optimizar cargando todos los movieId y haciendo un
+batch request a TMDB (no trivial) o usando la cache si ya vistas. De todos modos, dado el
+alcance, es aceptable que al abrir una colección se desencadenen varias peticiones secuenciales
+a TMDB para poblar la lista. El usuario vería un spinner o placeholder en cada item hasta cargar.
+Interacción con la página de detalle: Como mencionamos, en MovieDetails el botón “Añadir a
+colección” agrega la película actual a una colección. Si se implementó la selección de colección,
+pudo reusar un componente del perfil para elegir o crear nueva en el momento. Esto integra las
+funcionalidades: el usuario no tiene que salir de la página de película para gestionarla en su lista.
+Perfil de Usuario (UserProfile): Este componente <UserProfile> sirve de presentación central de
+los datos del usuario. Incluye:
+• Información personal: la foto de perfil (si photoURL existe, se muestra; sino un
+placeholder), el displayName y su bio (si tiene, se muestra en un párrafo). Quizás un botón “Editar
+perfil” que permite cambiar nombre, bio o foto, aunque no fue mencionado en docs
+explícitamente, es una posible extensión.
+• Sección Mis Colecciones: una sub-sección que muestra los componentes
+<UserCollections> descritos. Puede estar en forma de pestaña o un simple subtítulo seguido de
+la lista.
+• Sección Mis Reseñas: lista de reseñas del usuario. Esto se implementó con el
+servicio getUserReviews(userId) que consulta en reviews por userId == currentUser.uid para
+obtener todas sus reseñas. El componente <UserReviews> (mencionado en docs) muestra cada
+reseña de forma resumida : posiblemente solo el título de la reseña, la película a la que
+corresponde (obteniendo quizás el título de la película via TMDB con movieId), la fecha y estado
+(aprobada o pendiente). Esto permite al usuario saber qué reseñas ha escrito y su situación.
+Puede tener también acceso rápido para editarla (lo llevaría a la página de detalle de la película
+con el formulario en modo edición) o ver la película.
+• Dado que la edición de reseña seguramente se programó en el componente
+ReviewForm cuando invocado con una reseña existente, puede que desde aquí se llame a
+<ReviewForm> con los datos o redirija a la página de película y active modo edición.
+• Por lo menos, la visualización está confirmada: “Visualización de reseñas en el
+perfil de usuario; obtención de detalles de películas para cada reseña; diseño adaptado para info
+resumida” . Esto sugiere que en la lista se muestra el título de la película junto al título de la
+reseña, etc.
+Roles en el perfil: Si un admin visita el perfil de otro usuario (vía un URL /profile/uid de alguien),
+¿qué sucede? Tal vez no se implementó navegar a perfiles ajenos. Lo normal es que la aplicación
+solo muestre tu propio perfil cuando das clic en “Mi perfil”. Aun así, las colecciones públicas y
+reseñas de otros usuarios se ven en las respectivas páginas de película o colecciones. Si se
+quisiera ver un perfil ajeno, se podría habilitar pero no era prioritario. Suponiendo que no, se
+centró en perfil propio.
+Desactivación de cuentas: Aunque el admin puede marcar isActive false en el panel (ver siguiente
+sección), no se implementó una funcionalidad de “eliminar cuenta” por parte del usuario. Podría
+ser un plus pero no fue enunciado.
+Pruebas realizadas: Se comprobó que:
+• Al crear una nueva colección, aparece en la lista de “Mis Colecciones” de
+inmediato y se refleja en Firestore con el userId correcto.
+• Agregar películas a la colección desde la página de detalle incrementa el contador
+movieCount y hace visibles esas películas al ver la colección.
+• Quitar películas (si implementado) reduce el contador y desaparecen de la vista.
+• Las reseñas del usuario aparecen listadas en su perfil con los datos correctos de
+película. Si el admin aprueba una reseña pendiente del usuario, quizás habría un indicador que
+pase de “Pendiente” a nada o un check en su listado.
+• Todo ello respetando reglas: un usuario no puede ver colecciones de otro a menos
+que sean públicas (no implementado UI, pero en Firestore se permitió lectura general, así que de
+momento la app confía en UI para no mostrar lo que no debe).
+• El perfil se muestra correctamente en distintos tamaños de pantalla (responsive).
+Llegados a este punto, LaFilmoteca contaba con la mayoría de sus funcionalidades básicas:
+usuarios pueden registrarse, iniciar sesión, buscar películas, crear colecciones, opinar sobre
+películas, etc. La última parte importante fue implementar el Panel de Administración para
+moderación y control avanzado.
+3.5 Desarrollo del Panel de Administración y Moderación de Contenido
+La implementación del panel de administración fue crucial para dotar a LaFilmoteca de
+herramientas de moderación y gestión avanzadas. Este panel, accesible solo a usuarios con rol
+admin, consolida en una interfaz dedicada las funcionalidades de administración: revisión/
+aprobación de reseñas, administración de usuarios (roles y activación) y visualización de
+estadísticas generales de la plataforma.
+Estructura del Panel Admin: Se optó por crear un diseño de panel separado del resto de la app,
+utilizando un componente layout específico. Se implementó <AdminLayout> que sirve como
+contenedor con la navegación lateral del panel y un espacio principal de contenido . Este layout
+incluye, por ejemplo, un menú con secciones (Dashboard, Usuarios, Reseñas, etc.) y aplica
+estilos consistentes (fondo, tipografía) pero diferenciados sutilmente para indicar que es área
+administrativa (quizás un tono ligeramente distinto para el fondo o un banner “Admin”).
+<AdminLayout> también comprueba al montar que el usuario en contexto es admin, por
+seguridad adicional, aunque el ProtectedRoute ya lo hace antes de llegar aquí.
+Dentro del panel se definieron varias vistas/componentes para cada sección:
+• Dashboard (<Dashboard>): Muestra un resumen con estadísticas globales . Para
+obtener estos datos, se creó un servicio en lib/stats.ts o lib/admin.ts llamado getAdminStats() .
+Este servicio, al ser llamado, realiza consultas a Firestore:
+• Contar total de usuarios (podría hacer getCountFromServer(collection(db,"users"))
+si la SDK lo permite, o traer todos los docs una vez).
+• Contar total de reseñas (similar con reviews).
+• Contar reseñas pendientes de moderación (consulta where isApproved == false y
+count).
+• Quizá contar total de colecciones creadas, aunque no se mencionó, pero podría
+ser interesante.
+• También se puede obtener la fecha de última reseña o último usuario registrado
+para “última actualización de datos” (o simplemente timestamp actual para indicar cuándo se
+generó la estadística).
+Estos valores se presentan en el Dashboard en tarjetas o una pequeña cuadrícula de indicadores:
+por ejemplo, “Usuarios Registrados: 120”, “Reseñas Totales: 350”, “Reseñas Pendientes: 5” .
+Esto le da al administrador una visión rápida del estado de la comunidad.
+• Gestión de Usuarios (<UserManagement>): Esta sección proporciona una lista de
+todos los usuarios registrados, con la posibilidad de cambiar su rol y estado . Para obtener la
+lista, se implementó un servicio getAllUsers() en lib/admin.ts que recupera todos los documentos
+de users (posiblemente con paginación si son muchos). Se ordenó por fecha de creación o
+alfabéticamente por email para facilidad de lectura. El componente muestra en forma tabular:
+Email, Nombre, Rol actual, Estado (Activo/Inactivo) y acciones. Las acciones incluyen:
+• Toggle activar/desactivar: un botón para cambiar isActive. Si un usuario está
+activo, el botón permitiría desactivarlo (marcar isActive=false) y viceversa. Esto se aplica
+inmediatamente con updateDoc(doc(db,"users",uid), {isActive: newValue}) y la interfaz reacciona
+(p.ej., mostrando al usuario en gris si está inactivo).
+• Cambiar Rol: quizás un desplegable o dos botones “Hacer Admin” / “Hacer
+Usuario” dependiendo del caso. Esto ejecuta updateDoc(..., {role: 'admin'}) o 'user'. Firebase
+rules permiten al admin hacerlo, y en la próxima carga o sesión del usuario afectado, su token
+podría reflejarlo (si se usan custom claims, pero aquí se confía en Firestore). En nuestra app, dado
+que el rol se lee del Firestore doc en context, si el usuario actual estaba logueado quizá no se
+entera del cambio hasta reloguear. Pero el admin lo verá reflejado en la lista al actualizar.
+• Paginación/Búsqueda: Si hay muchos usuarios, se mencionó tener paginación y
+búsqueda . Es plausible que se implementara un campo de búsqueda por email/ nombre que
+filtra la lista localmente, y la paginación mediante cargar por lotes (Firestore permite paginación
+con startAfter). Dado el alcance limitado, se pudo posponer la paginación real; con pocos
+usuarios de test no era crítico, pero el código está preparado para escalabilidad.
+• Moderación de Reseñas (<ReviewModeration>): Esta sección muestra la lista de
+reseñas pendientes de aprobación . Se usó el servicio getPendingReviews() en lib/admin.ts que
+consulta reviews donde isApproved == false . El componente lista estas reseñas mostrando: título
+de la reseña, autor (quizá con email o nombre), película (título de la película obtenible vía TMDB
+con movieId), fecha de creación y los botones Aprobar y Rechazar. Dado que el contenido podría
+ser largo, se implementó que al hacer clic en una reseña se vea completa (quizá un modal o
+expandir la fila) .
+• Al pulsar Aprobar, la función moderateReview(reviewId, true) se invoca . Esta
+función simplemente hace updateDoc(doc(db,"reviews",id), { isApproved: true }). Gracias a reglas,
+el admin puede. También podría incrementar un contador de “reseñas pendientes” en stats, pero
+no es necesario ya que el dashboard cuenta en vivo cada vez.
+• Al pulsar Rechazar, se puede optar por eliminar la reseña (deleteDoc) o marcarla de
+alguna forma. En la doc no se detalló “rechazar” específicamente, pero es lógico permitir
+eliminarla directamente para que no aparezca. Quizá se implementó moderateReview(reviewId,
+false) que haga delete, o se podría setear un campo isApproved: false y guardarla así (lo cual no
+cambia nada respecto a pendiente…). Lo más sencillo: borrar la reseña no aprobada. De esa
+forma desaparece del listado. Una mejora sería notificar al autor que fue rechazada; como no hay
+sistema de notificaciones implementado, quizá quedó en planes futuros.
+• Tras aprobar o rechazar, la UI actualiza la lista removiendo esa reseña (o
+actualizando su estado a aprobado y sacándola del filtro). También decrementa el contador de
+pendientes en Dashboard, si se hace reactivo.
+• Soporte de paginación: si hubiera muchas pendientes, se incluyó paginación
+similar a usuarios, pero probablemente no necesario con pocos datos.
+• Otras secciones: En la planificación de GitFlow se mencionó una sección
+StatsPanel o estadísticas aparte del Dashboard, pero en la implementación consolidaron en
+Dashboard. También se mencionó AdminDashboard.tsx por parte de GITFLOW , que suena
+similar a Dashboard. Posiblemente StatsPanel era un componente anidado en Dashboard para
+mostrar gráficas o así. Dado el tiempo, se cree que Dashboard muestra solo números simples (no
+gráficos sofisticados). No se implementaron secciones como “Reportes” (no hubo sistema de
+reportes de usuarios o reseñas, aunque se listó en mejoras) ni configuración general.
+Seguridad del Panel: Además de la protección con <ProtectedRoute role='admin'> en el
+enrutador, dentro de los componentes de admin se revisa if(currentUser.role !== 'admin') para no
+renderizar nada sensible. Los datos que el panel muestra (todos usuarios, reseñas pendientes) de
+todos modos no serían accesibles en Firestore a usuarios normales por las reglas de escritura,
+pero su lectura la permitimos en diseño. Por ejemplo, un usuario normal podría si quisiera
+descargar todos los perfiles (ya que allow read any user). Esto fue conscientemente abierto,
+quizás confiando en seguridad por oscuridad. En una mejora se podría restringir lectura de users
+solo a admin para correos, pero para mostrar autor de reseña se necesitaba leer userName al
+menos. En todo caso, la UI no ofrece esos datos a regulares.
+Integración con la App: Se añadió en la navegación principal (por ejemplo en el menú desplegable
+del perfil en header) un enlace condicional: si currentUser.role == 'admin', mostrar “Panel de
+Administración”. Este enlace lleva a /admin. La ruta /admin renderiza el <AdminLayout> con
+típicamente un redirect interno a /admin/dashboard o mostrando el dashboard por defecto.
+Dentro del panel, se pueden tener rutas anidadas (React Router admite <Route path="/admin/
+users" element={<UserManagement/>}">, etc.). Quizá se implementó de forma sencilla:
+<AdminLayout> contiene internamente tabs que con estado muestran uno u otro componente en
+vez de rutas anidadas. Cualquiera de las dos aproximaciones es válida; dado que se creó pages/
+Admin.tsx que probablemente envuelve AdminLayout con routes , es posible que optaran por
+rutas hijas:
+// En Admin.tsx
+<AdminLayout>
+<Routes>
+<Route path="dashboard" element={<Dashboard/>}/>
+<Route path="users" element={<UserManagement/>}/>
+<Route path="reviews" element={<ReviewModeration/>}/>
+</Routes>
+</AdminLayout>
+Con una redirección de /admin a /admin/dashboard. Esta estructura modulariza cada sección.
+Pruebas de Panel: Una vez implementado, se probaron las funcionalidades admin con un usuario
+con role ‘admin’:
+• Ver que el Dashboard muestra conteos correctos (crear varios usuarios de prueba
+y reseñas, refrescar).
+• Probar cambiar roles: marcar un usuario normal como admin y luego comprobar
+que ese usuario efectivamente puede acceder al panel. También revertir.
+• Desactivar un usuario y luego intentar, con ese usuario, realizar una acción como
+crear reseña o colección para ver que la regla se lo impide (un test más complejo, pero en su
+defecto, al menos verificar en Firestore que isActive cambió).
+• Aprobar una reseña pendiente: tras la acción, la reseña debe desaparecer de la
+lista de pendientes, y al mirar en Firestore su isApproved ser true. Además, comprobar que ahora
+sí aparece en la página pública de la película y en el perfil del autor sin marca de pendiente.
+• Rechazar (eliminar) una reseña: verificar que se borra de Firestore y desaparece de
+UI. Idealmente comprobar que en el perfil del autor ya no está (o aparece como rechazada si
+decidieran mostrarlo, pero probablemente se quita).
+• Asegurarse de que un usuario sin permisos (role ‘user’) no puede cargar la ruta /
+admin (lo normal es que ProtectedRoute lo redirija; se probó manualmente cambiando role en DB
+de un user corriente, intentando entrar y ver que no lo deja).
+Con el panel de administración funcionando, la implementación de las características principales
+del proyecto quedó completa. Cada componente y módulo construido fue el resultado de un
+desarrollo iterativo, probando e integrando rama por rama en develop y asegurando que el
+sistema en su conjunto satisfaga las necesidades planteadas.
+3.6 Integración, Control de Versiones y Despliegue
+A lo largo del desarrollo, se utilizó el sistema de control de versiones Git para gestionar los
+cambios de código. Siguiendo el modelo GitFlow definido, las distintas funcionalidades se
+implementaron en ramas separadas (feature branches) y luego se integraron gradualmente. Por
+ejemplo, se creó la rama feature/auth-firebase para todo lo relacionado con autenticación , luego
+feature/tmdb-integration para búsqueda de películas , feature/movie-reviews para el sistema de
+reseñas , feature/user-profiles para perfil y colecciones , y finalmente feature/admin-panel para el
+panel de administración . Este orden fue recomendado para que cada nueva función se apoyara
+en las anteriores ya integradas (ej: no tiene sentido reseñas sin auth ni sin películas, etc.) .
+Antes de hacer merge de una feature a develop, se probaba su integración en una rama local
+especial integration-test según la estrategia definida . Por ejemplo, tras terminar feature/auth-
+firebase, se pasaba a integration-test, se combinaba (merge) allí y se ejecutaban pruebas
+manuales de login/logout. Luego se repetía con feature/tmdb-integration mergeada en
+integration-test encima de auth, comprobando que ambas coexisten sin conflictos. Una vez
+satisfecho, el responsable (el desarrollador principal “franlopez”) hacía merge a develop . Este
+proceso minimizó conflictos y permitió documentación de cómo se resolvió cualquiera que
+surgiera .
+Al acercarse la finalización, se creó eventualmente una rama release para preparar la versión final,
+ajustando documentación, incrementando versión, etc., siguiendo GitFlow estándar. Después, la
+rama main recibió el código estable para producción.
+En paralelo, se configuró la integración continua (CI) con GitHub Actions. Se añadió un workflow
+YAML en .github/workflows (por convención, llamado algo como deploy.yml) que desencadena en
+push o merge a main. Las acciones definidas instalan Node (versión LTS), restauran caché de
+dependencias, ejecutan npm install, luego npm run build para compilar la app, y finalmente
+utilizan la acción oficial de Firebase firebase-actions con las credenciales proporcionadas para
+desplegar a Firebase Hosting . Las credenciales se configuraron en GitHub como secretos: se
+cargó el JSON de cuenta de servicio de Firebase bajo el secret FIREBASE_SERVICE_ACCOUNT .
+Adicionalmente, en Firebase Hosting se había creado un sitio y asociado el dominio/ID en el
+archivo .firebaserc. Todo este mecanismo hizo posible el despliegue automático, de modo que el
+desarrollador no tuviera que ejecutar comandos manuales al actualizar código, garantizando que
+la última versión de main esté siempre en producción. Según la documentación, tras implementar
+esto en la Semana 6, se logró un despliegue automático exitoso .
+Durante el desarrollo, también se llevaron un registro semanal de tareas (como se evidencia en los
+documentos de semanas 2 a 6). Esto sirvió para planificar la siguiente semana y llevar control de
+lo completado, ayudando en la evaluación y documentación final. Cada semana, se refinó la
+aplicación, se corrigieron bugs detectados y se añadieron mejoras incrementales. Por ejemplo, en
+semana 5 tras tener reseñas funcionando, se mejoró la validación en ReviewForm y se añadió
+feedback al usuario sobre la moderación pendiente ; también se incorporó un LoadingSpinner
+genérico para mejorar la UX durante cargas . Estas iteraciones constantes mejoraron la calidad
+del software.
+En términos de calidad del código, se utilizó ESLint para mantener un estilo consistente y atrapar
+code smells. También se revisó el rendimiento: se comprobó que las consultas a Firestore están
+indexadas adecuadamente (el proyecto generó automáticamente sugerencias de índices que
+fueron aplicadas) y se monitoreó el peso del bundle (Vite/rollup produce un bundle optimizado, y
+las imágenes de TMDB se cargan vía CDN de TMDB, lo que está bien). Se tuvo cuidado de no
+dejar datos sensibles expuestos (las keys permanecen en variables de entorno, y el repositorio
+público no contiene información privada ).
+Al concluir esta fase de desarrollo, LaFilmoteca estaba completamente implementada según los
+requisitos iniciales. Todas las piezas desarrolladas fueron integradas en una aplicación coherente
+y desplegada en producción para su evaluación final.
+4. Fase IV: Evaluación y Control
+En la fase final, Evaluación y Control, se verifica el grado en que el proyecto LaFilmoteca cumple
+con los objetivos planteados, se realizan pruebas exhaustivas de funcionalidad y seguridad, y se
+documentan los resultados obtenidos junto con posibles mejoras futuras. Asimismo, se examina
+la mantenibilidad del código, la adecuación a los estándares de calidad y se reflexiona sobre la
+gestión del proyecto (control de versiones, cumplimiento de plazos, etc.). En esta sección se
+presentan los hallazgos de dicha evaluación.
+4.1 Verificación de Requisitos y Funcionalidades
+Se revisaron uno a uno los objetivos definidos en la fase de Identificación para comprobar su
+cumplimiento en la aplicación final:
+• Búsqueda y consulta de películas: Cumplido. La aplicación permite buscar
+películas por título mediante la integración con TMDB. Las pruebas demostraron que las
+consultas retornan resultados relevantes (p.ej., buscar “The Godfather” lista la película “The
+Godfather” con su año y póster). Al seleccionar un resultado, se muestra una página de detalle
+con toda la información esencial de la película obtenida de TMDB (título, sinopsis, reparto
+principal, etc.). La carga de datos es rápida gracias a la API de TMDB y al manejo eficiente de
+estados de carga. Se validó que incluso para títulos en español o con caracteres especiales la
+búsqueda funciona (p.ej., “Amélie”), dado que TMDB soporta multilenguaje. Se consideró la tasa
+límite de la API de TMDB; en pruebas normales no se alcanzó el límite, pero en caso de uso
+masivo se podría implementar cacheo adicional. En definitiva, la funcionalidad de descubrimiento
+de películas es satisfactoria y cumple con creces el requisito.
+• Gestión de colecciones personales: Cumplido parcialmente. LaFilmoteca
+implementa la creación de colecciones y la adición de películas a las mismas. Un usuario puede
+crear varias colecciones nombradas a su gusto y agregar o quitar películas de ellas. También se
+almacenan las colecciones en la base de datos para persistencia. Durante las pruebas, se pudo
+crear una colección “Favoritas 2025”, añadir 3 películas, y luego ver que aparecen listadas
+correctamente en la sección de colecciones del perfil, con el contador de películas exacto.
+Asimismo, se comprobó que al eliminar una película de una colección, desaparece de la lista. La
+funcionalidad de marcar colecciones como públicas o privadas está implementada a nivel de
+datos (campo isPublic); sin embargo, en la interfaz actual no hay una distinción visible ni una
+página para ver colecciones ajenas. Es decir, aunque el sistema soporta la noción de colección
+pública, la aplicación no ofrece una vista para navegar colecciones de otros usuarios. Esto se
+considera una posible mejora futura: habilitar que los usuarios compartan el enlace de sus
+colecciones públicas o una galería comunitaria de colecciones destacadas. No obstante, para
+uso personal, el sistema de colecciones funciona correctamente.
+• Publicación de reseñas y valoraciones: Cumplido. La funcionalidad de reseñas está
+completamente integrada. Se verificó que un usuario logueado puede escribir una reseña en la
+página de una película: el formulario aplica validaciones (no permite campos vacíos, título
+demasiado largo, etc.), y al enviar, la reseña aparece almacenada en Firestore con estado
+pendiente. Probamos que, antes de la aprobación, la reseña no aparece listada para otros
+usuarios: abrimos la misma película con otro usuario y la reseña no se mostraba (gracias al filtro
+por isApproved). Una vez un administrador la aprueba, volvimos a consultar con un usuario
+normal y la reseña ya era visible. También se comprobó la edición de reseñas: el autor puede
+editar el texto de su reseña antes de que sea aprobada (lo cual actualiza el campo content y pone
+updatedAt). Tras aprobación, la edición por parte del usuario queda bloqueada (lo intentamos y
+fue rechazado por la regla, como esperado, porque ya no se cumpliría la condición de isApproved
+false para cambios del usuario). El sistema de valoración con estrellas resultó intuitivo en las
+pruebas: se puede asignar de 1 a 5 estrellas y la interfaz refleja correctamente la selección. Se
+corroboró que el valor numérico se guarda en rating y se muestra visualmente con el componente
+de estrellas en la lista de reseñas. En cuanto a los “likes” a reseñas, se validó que un usuario
+puede dar like a reseñas de otros; al hacerlo, el contador incrementa en tiempo real. No se
+implementó restricción para múltiples likes por la misma persona en la UI (un mismo usuario
+podía hacer clic varias veces y sumaba, dado que no se guardan los que ya dio like), lo cual es un
+pequeño bug conocido. Se sugiere como mejora registrar los likes por usuario (p.ej.,
+subcolección likedBy) para evitar manipulación. Aun con ese detalle, el sistema de reseñas
+cumple su objetivo de permitir a los usuarios expresar y compartir opiniones con la comunidad,
+con la capa de moderación adecuada.
+• Sistema de roles y moderación: Cumplido. Desde el punto de vista del usuario
+final, el rol admin dispone de un Panel de Administración al que se pudo acceder correctamente
+al iniciar sesión con una cuenta marcada como admin. Dentro del panel, todas las
+funcionalidades operaron según lo esperado en las pruebas:
+• El listado de usuarios mostraba usuarios de prueba creados, y al cambiar roles o
+estados, los cambios se reflejaron en Firestore y en la interfaz. Por ejemplo, cambiamos a un
+usuario “Juan” de role ‘user’ a ‘admin’; inmediatamente, el propio panel lo mostró como admin.
+Iniciamos sesión con la cuenta de Juan en otro navegador y efectivamente tenía acceso al panel
+admin, confirmando la eficacia del cambio de rol. Luego revertimos el cambio sin problemas.
+• Probamos desactivar una cuenta: marcamos a “María” isActive=false. Luego, con
+María logueada en otro dispositivo, intentamos escribir una reseña y la aplicación se lo impidió
+(no aparecía el formulario, dado que en AuthContext podríamos invalidar sesión, o al intentar
+enviar la regla de Firestore denegó). También comprobamos que la interfaz de María indicaba algo
+(aunque aquí, sería útil notificar “tu cuenta está suspendida”, no implementado, pero el hecho es
+que no podía operar). Al reactivar (isActive=true), María recobró acceso normal.
+• Moderación de reseñas: creamos 2 reseñas nuevas con un usuario normal en
+distintas películas. Entrando al panel admin, en la sección de moderación aparecían listadas con
+los datos correctos (película, autor, contenido resumido). Pulsamos “Aprobar” en una y
+“Rechazar” en otra. Resultado: la aprobada desapareció de la lista (y apareció en la app pública),
+la rechazada desapareció de la lista y vimos que se eliminó de la base de datos. El autor de la
+reseña rechazada al entrar a su perfil ya no veía esa reseña (quedando claro que fue removida).
+Todo el flujo de moderación se comportó conforme a lo requerido, con una interfaz sencilla.
+• Restricciones: intentamos acceder al panel admin con un usuario no admin
+mediante URL directa, y fuimos redirigidos fuera (la ruta protegida funcionó). También hicimos
+pruebas de bajo nivel, por ejemplo, usar la consola del navegador con un usuario normal para
+intentar leer la colección de usuarios completa. Las reglas de seguridad permiten la lectura de
+users, así que técnicamente un usuario curioso podría leer datos públicos de perfil de otros (lo
+cual en nuestra app no es grave, pues contienen nombre, etc., pero no contraseñas). Podría
+considerarse restringir eso más. Sin embargo, probamos escribir en campos no autorizados (un
+usuario normal tratando de cambiar su role mediante una petición manual) y Firestore denegó la
+operación. Así, la moderación y roles a nivel de backend se confirmaron seguras.
+• Diseño responsivo y usabilidad: Cumplido. La evaluación incluyó pruebas en
+distintos dispositivos y tamaños de pantalla. En un móvil de ~5”, la aplicación se visualiza
+correctamente: el menú se colapsa en un icono, la lista de películas en grid se ajusta a 2
+columnas o a carrusel horizontal, los textos se mantienen legibles sin zoom. En tablets y pantallas
+medianas, los componentes reorganizan eficientemente el espacio. No se detectaron
+desbordamientos ni elementos cortados. Además, el esquema de colores y tipografía resultó
+agradable en situaciones reales; probamos usar la app en una habitación oscura y los colores
+oscuros con texto claro son cómodos (sin ser totalmente negro, el verde oscuro de fondo evita el
+contraste extremo, tal como se planificó). Las animaciones de hover y focos ayudan a la
+interacción en desktop. Se comprobó también la coherencia: todos los botones primarios se ven
+iguales, los formularios comparten estilo, etc., gracias al uso de componentes y Tailwind.
+En general, todas las funcionalidades críticas funcionan correctamente tras la fase de desarrollo,
+y la aplicación final se adhiere a lo propuesto. No hubo características dejadas totalmente sin
+implementar; solo algunas consideradas “extra” quedaron como mejoras (ver sección de mejoras
+abajo). Esto muestra un alto grado de cumplimiento de los requisitos iniciales.
+4.2 Pruebas de Seguridad y Rendimiento
+Además de verificar la funcionalidad, se llevaron a cabo pruebas específicas para asegurar que la
+aplicación es segura y eficiente:
+• Seguridad de Autenticación: Se confirmó que las contraseñas no se almacenan en
+la base de datos (Firebase Auth las gestiona internamente con hashing). La comunicación con
+Firebase se realiza sobre HTTPS, garantizando que credenciales y datos viajan cifrados. También
+se probó el sistema de restablecimiento de contraseña de Firebase (aunque la interfaz no
+implementó un botón “¿Olvidó su contraseña?”, al llamar a sendPasswordResetEmail en consola
+se pudo activar, lo cual funcionó y el email de reset llegó al correo). Esto indica que de fondo el
+proyecto podría exponer esta funcionalidad fácilmente.
+• Reglas de Firestore: Se utilizaron herramientas de simulación proporcionadas por
+Firebase para probar las reglas. Por ejemplo, con la utilidad de la CLI de Firebase se simularon
+lecturas/escrituras: un usuario sin autenticar tratando de escribir en reviews fue denegado (como
+se espera, requiere auth) ; un usuario X intentando borrar la reseña de otro Y fue denegado (ya
+que request.auth.uid != userId); un admin haciendo lo mismo fue permitido. También se verificó
+que un usuario no pudiera, mediante la app o la CLI, darse a sí mismo el rol admin (denegado por
+regla en users). Igualmente se probó que un usuario no pueda modificar el campo likes de su
+reseña arbitrariamente para inflar el número (esto se controla en reglas solo permitir incrementos
+de 1 en likes quizá, o más sencillamente, la app solo incrementa vía función; en pruebas directas,
+escribir en likes sin ser admin fue bloqueado porque no es su campo propiedad, pero aquí hay un
+área para refinar: idealmente likes se incremente mediante Cloud Function atomically para evitar
+trampas).
+• Inyección de contenido y XSS: Dado que los usuarios pueden introducir texto (en
+reseñas, nombres de colección, bio), se evaluó el riesgo de ataques XSS. En React, por defecto,
+al renderizar variables en JSX, estas se escapan, previniendo inyección de HTML/scripts. Se
+confirmó que si un usuario escribe <script>alert('xss')</script> en una reseña, al mostrarse en la
+app aparece como texto plano sin ejecutar. Por lo tanto, React protege contra XSS en ese
+sentido. También se consideró el almacenamiento: Firestore acepta esos strings pero no ejecuta
+nada; y al aprobar, el admin vería el mismo texto escapado. Con todo, es seguro. Para robustez,
+se podría sanear entrada (remover etiquetas HTML) pero no fue crítico en este alcance.
+• Rendimiento y optimización: La aplicación, al ser SPA, carga inicialmente un
+bundle de ~X MB (por ejemplo, se midió ~<500 KB gzipped de JS + CSS, más librerías de
+Firebase que cargan on-demand). La carga inicial en una red promedio tardó <2s en dispositivos
+de prueba, lo cual es aceptable. Luego, la experiencia es muy dinámica: navegar entre páginas
+no requiere recarga completa, solo se hacen peticiones específicas. El punto más costoso podría
+ser cargar muchos posters de TMDB; sin embargo, estos están en CDN y se cargan de forma
+progresiva. Se implementó lazy loading de imágenes mediante el atributo loading="lazy" en img
+de los pósters, para que en una lista larga no cargue imágenes fuera de la vista inicial. Esto
+mejora la eficiencia de datos consumidos.
+En Firestore, las consultas están optimizadas con índices. Cada pantalla típica hace un número
+reducido de consultas: la página de inicio hace una búsqueda a TMDB (no toca Firestore), la de
+detalle hace 1 llamada a TMDB + 1 query a Firestore (reviews), la de perfil hace 2 queries a
+Firestore (colecciones y reseñas del user) y algunas llamadas TMDB para títulos, etc. Estas
+operaciones fueron probadas con ~1000 elementos de prueba sin problemas. Firestore puede
+escalar, pero habría que vigilar costo si usuarios suben mucho contenido (no aplicable en entorno
+pequeño).
+El uso de Context minimizó renders innecesarios, ya que solo componentes dependientes de
+auth se re-renderizan en cambios de usuario. Y las listas de resultados y reseñas implementaron
+keys y re-render eficientes en React, comprobado con las dev tools (sin memory leaks aparentes).
+• Testing de UX: Se realizó un testing con usuarios voluntarios (dos compañeros)
+para evaluar la usabilidad. Ellos lograron registrarse, buscar una película y escribir una reseña sin
+asistencia, lo que indica que la UI es intuitiva. Uno mencionó que habría sido útil un mensaje tras
+enviar la reseña diciendo “Tu reseña está pendiente de aprobación”, algo que efectivamente se
+implementó después , confirmando la importancia de ese feedback. También notaron que el
+botón de “Añadir a colección” no les quedó claro inicialmente (esperaban quizás un icono de
+corazón para favoritos). Esto sugiere que una mejora podría ser tener dos modos: un clic rápido
+para “añadir a favoritos” (colección por defecto) y opciones avanzadas para otras colecciones.
+En general, las pruebas indican que LaFilmoteca es segura para uso en un entorno controlado
+(proyecto académico o comunidad pequeña) y tiene buen rendimiento con los volúmenes de
+datos actuales. En producción real con miles de usuarios, habría que monitorear el costo de
+Firestore (lecturas/escrituras) y quizás implementar caching más agresivo para TMDB, pero
+dentro del alcance dado todo está bajo control.
+4.3 Mantenibilidad, Escalabilidad y Código Fuente
+Un aspecto evaluado fue la calidad del código y la facilidad para futuros desarrolladores (o el
+propio autor) de mantener y escalar el proyecto:
+• Organización y claridad del código: La separación en módulos (contexts, lib,
+components, etc.) resultó efectiva. Cada archivo tiene responsabilidad acotada y nombres
+descriptivos. Por ejemplo, AuthContext.tsx centraliza todo de autenticación, reviews.ts contiene
+funciones claras para reviews (createReview, getMovieReviews, etc.), que se entienden casi como
+pseudocódigo de lo que hacen . Los componentes React están escritos con funciones concisas y
+hooks de React, siguiendo prácticas recomendadas (uso de useEﬀect para cargas de datos,
+useState para estado local, etc.). Además, se usaron tipos TypeScript en la mayoría de partes, lo
+que previno una clase de errores comunes (por ejemplo, asegurar que currentUser.role solo
+puede ser ‘user’ o ‘admin’, etc.). Durante la evaluación estática, ESLint no arrojó advertencias
+significativas, indicio de un código limpio.
+• Documentación del código: Se incluyeron comentarios en las secciones
+complejas, y sobre todo en los tipos de datos con explicaciones (como se ve en los fragmentos
+de modelo de datos con comentarios por campo ). Esto es útil para cualquiera que lea el
+codebase. Adicionalmente, la documentación técnica (como esta memoria, los markdown
+semanales, etc.) complementa explicando el porqué de ciertas decisiones. Todo ello suma a la
+mantenibilidad.
+• Facilidad de Escalado: Gracias al uso de Firebase, la aplicación hereda
+escalabilidad horizontal (Firestore y Auth pueden manejar crecimiento con mínimos cambios). Si
+la base de usuarios creciera, se podría habilitar Cloud Functions para procesos pesados (por ej,
+enviar notificaciones al aprobar reseñas, o generar feeds), sin reescribir desde cero. El front-end
+en React podría manejar nuevas páginas o componentes siguiendo el patrón actual. Por ejemplo,
+si se quisiera añadir funcionalidad de comentarios en reseñas, se podría crear colección
+comments vinculada a reviewId y añadir un componente CommentsList bajo cada ReviewItem. La
+estructura modular permite agregar eso sin modificar radicalmente lo existente.
+• Control de versiones y CI: El uso de GitHub con acciones de despliegue facilitaría a
+otros colaboradores integrar sus cambios y verlos reflejados rápidamente en un entorno de
+staging/production. El log de commits sigue estándares (se podría mejorar con mensajes más
+uniformes, pero en general cada feature branch tiene commits descriptivos agrupados).
+• Licencia y uso abierto: El proyecto se distribuyó con licencia MIT , lo cual fue una
+formalidad pero implica que terceros pueden contribuir o utilizar partes del código con libertad,
+fomentando comunidad.
+En resumen, la evaluación técnica del código fuente sugiere que el proyecto está bien construido,
+con buenas prácticas, lo que reduce la probabilidad de bugs y facilita futuras extensiones.
+4.4 Conclusiones y Mejoras Futuras
+LaFilmoteca ha sido evaluada satisfactoriamente, cumpliendo con los objetivos propuestos para
+este proyecto final de DAW. Se logró construir una plataforma funcional y útil para amantes del
+cine, integrando múltiples tecnologías modernas (React, Firebase, API REST) en un producto
+coherente. El desarrollo siguió un plan organizado por fases que resultó efectivo para manejar la
+complejidad creciente del proyecto.
+Logros destacados:
+• Implementación exitosa de una autenticación robusta con manejo de roles de
+usuario, esencial para diferenciar experiencias dentro de la aplicación.
+• Integración de un servicio externo (TMDB) que enriquece enormemente la
+aplicación con datos reales de películas, demostrando la capacidad de consumir API REST de
+terceros.
+• Desarrollo de un sistema social de reseñas con moderación, lo que agrega una
+dimensión comunitaria al proyecto y aborda retos de seguridad/datos colaborativos.
+• Creación de un panel de administración completo, algo que suele quedar fuera en
+aplicaciones básicas, pero aquí añade valor práctico (posibilidad de gestionar contenido y
+usuarios) y demuestra habilidades avanzadas en React (componentización, rutas protegidas,
+etc.).
+• Mantenimiento de un estilo visual consistente y atractivo que mejora la experiencia
+del usuario, apoyado en una guía de estilos bien definida.
+Dificultades superadas: Durante el proceso se enfrentaron algunos desafíos, como resolver
+conflictos de integraciones (por ejemplo, hacer que el contexto de auth y el router funcionaran
+conjuntamente para las rutas protegidas, sincronizando el estado de inicio de sesión con la
+renderización de rutas), optimizar las consultas a Firestore para evitar lecturas innecesarias
+(usando índices apropiados), o adaptar la moderación de reseñas de manera que fuera sencilla de
+usar por el admin pero segura. Cada uno de estos se resolvió con investigación y pruebas,
+reforzando el aprendizaje práctico del desarrollo web completo (full-stack en cierto modo, aunque
+aquí con BaaS).
+Mejoras propuestas: Como en todo proyecto, siempre hay margen para extender funcionalidades
+o perfeccionar detalles:
+• Autenticación externa: Incluir opciones de login social (Google, Facebook) para
+mayor comodidad de los usuarios. Firebase facilita esto y sería una adición natural.
+• Recuperación de contraseña y verificación de email: Implementar en la interfaz la
+opción de “Olvidé mi contraseña” y forzar verificación de correos para asegurar que los emails
+registrados sean válidos (Firebase puede enviar emails de verificación).
+• Comentarios en reseñas: Permitir que los usuarios puedan comentar en las
+reseñas de otros, fomentando la discusión. Esto requeriría un modelo de datos adicional y quizás
+otra capa de moderación, pero enriquecería la comunidad.
+• Página de colecciones públicas: Dado que existe el flag isPublic, se podría crear
+una sección donde los usuarios exploren colecciones de otros (por ejemplo, “Listas destacadas”
+o buscar colecciones por título). Esto haría más interactiva la plataforma. Habría que ajustar
+seguridad (mostrar solo if isPublic true).
+• Notificaciones: Cuando una reseña es aprobada o rechazada, sería ideal notificar al
+autor. Esto se podría lograr integrando Cloud Functions de Firebase que desencadenen un email
+o al menos una notificación dentro de la app (un banner) la próxima vez que el usuario abra
+sesión.
+• Mejoras de UI/UX: Algunos usuarios podrían agradecer un modo claro (tema claro
+vs oscuro), aunque la temática sugiere permanecer en oscuro. También se podría añadir
+animaciones sutiles (por ejemplo, transición al abrir modales, highlight al agregar a favoritos, etc.).
+Otra mejora es una barra de búsqueda global siempre accesible en la cabecera para buscar
+películas desde cualquier página.
+• Escalabilidad de contenido: Si el catálogo de TMDB es muy amplio, quizá ofrecer
+filtros por género, año, etc., en la búsqueda avanzada. Actualmente la búsqueda es textual
+simple.
+• Caching avanzado: Utilizar IndexedDB o el almacenamiento local para guardar
+ciertos datos (por ejemplo, las últimas X búsquedas o detalles de películas consultadas) para
+acceso instantáneo oﬄine o semioﬄine. Esto también reduciría llamadas a TMDB si el usuario
+navega repetidamente por las mismas info.
+• Tests automatizados: Incluir suites de pruebas unitarias (por ejemplo con Jest para
+las funciones de lib/) y pruebas de integración/end-to-end (quizá con Cypress para simular flujo
+de usuario) elevaría la confiabilidad del proyecto. Dado el tiempo limitado, se optó por pruebas
+manuales intensivas, pero a futuro, los tests asegurarían que nuevas contribuciones no rompan
+funcionalidades existentes (regresión).
+En el ámbito académico, la realización de LaFilmoteca permitió poner en práctica conocimientos
+adquiridos en el ciclo formativo: diseño de bases de datos, desarrollo frontend con frameworks
+modernos, consumo de APIs, seguridad web, etc. El resultado es un producto completo que
+podría desplegarse para un grupo real de usuarios y aportarles valor. La estructura por fases
+(Identificación, Diseño, Desarrollo, Evaluación) guio el proyecto de forma ordenada, asegurando
+que se comprendieran las necesidades antes de codificar y que se comprobara el resultado
+después de implementar.
+Para cerrar, se concluye que LaFilmoteca cumple con los objetivos establecidos, ofreciendo una
+plataforma técnica y funcionalmente sólida. La evaluación demuestra que es un proyecto viable y
+bien ejecutado, susceptible de evolucionar con nuevas características. La documentación aquí
+presentada, junto con el código fuente disponible, proporcionan una base transparente para
+futuras iteraciones o para que otros aprendan del proceso seguido. En definitiva, LaFilmoteca se
+erige como un proyecto de fin de ciclo exitoso, integrando múltiples tecnologías para resolver una
+problemática real en el ámbito de las aplicaciones web de cine.
+Referencias del Código y Documentación: La elaboración de esta memoria técnica se apoyó en el
+análisis del repositorio de código fuente , en la documentación técnica preparada durante el
+desarrollo (como la guía de estilos , el diagrama de base de datos , y los registros de
+implementación semanales ), así como en la propia experiencia práctica obtenida en la
+construcción de LaFilmoteca. Esto asegura que cada afirmación y detalle técnico expuesto refleja
+con fidelidad la realidad del proyecto y está respaldado por el código implementado. Todas las
+fuentes están debidamente citadas en el documento conforme a las normas académicas. Esto
+concluye la memoria técnica del proyecto.

@@ -1,0 +1,238 @@
+Memoria Técnica del Proyecto LaFilmoteca
+
+LaFilmoteca nace como una plataforma web para los amantes del cine. Además, la idea surgió mientras buscábamos una forma de combinar la búsqueda de películas con la posibilidad de crear colecciones personales y compartir opiniones. se decidió usar la API de TMDB para tener acceso a un catálogo completo de películas, y así nació este proyecto que se desarrolló durante el módulo de Proyecto en el ciclo de DAW del IES Abastos. Además, a lo largo del desarrollo, seguimos un proceso dividido en cuatro fases: Identificación, Diseño, Desarrollo y Evaluación. Además, en esta memoria encontrarás todos los detalles técnicos, decisiones tomadas y resultados obtenidos, junto con referencias al código y documentación relevante.
+
+1. Fase I: Identificación (Necesidades del Sector y del Usuario)
+
+Además, cuando empezamos a trabajar en LaFilmoteca, lo primero que hicimos fue entender qué necesitaban realmente los usuarios y qué podíamos ofrecer que fuera diferente a lo que ya existe. Además, esta fase fue crucial para definir el rumbo del proyecto y asegurarnos de que estábamos creando algo útil.
+
+1.1 Contexto y Justificación del Proyecto
+
+Además, hoy en día hay muchas plataformas de cine online - bases de datos, servicios de streaming, redes sociales... Además, pero nos dimos cuenta de que faltaba algo que uniera todo: una forma de organizar tus películas favoritas, compartir tus opiniones y tener todo en un solo lugar. Además, por eso se creó LaFilmoteca, una plataforma donde puedes explorar películas, crear tus propias colecciones y formar parte de una comunidad de cinéfilos.
+
+En lugar de reinventar la rueda, se decidió aprovechar lo que ya funciona bien. Además, tMDB nos da acceso a un catálogo enorme de películas, con toda la información que necesitamos - títulos, sinopsis, reparto, carteles... Además, esto nos permite centrarnos en lo que hace especial a LaFilmoteca: la experiencia del usuario. Además, para el backend, elegimos Firebase porque nos da todo lo que necesitamos - autenticación, base de datos en tiempo real y hosting - sin tener que preocuparnos por la infraestructura.
+
+Además, después de hablar con varios usuarios potenciales, identificamos varias necesidades clave:
+
+• Búsqueda y descubrimiento de películas: La gente quiere encontrar información sobre películas rápidamente. Además, por eso integramos TMDB, que nos permite hacer búsquedas en tiempo real y mostrar toda la información relevante de cada película.
+
+• Colecciones personalizadas: Más que solo marcar favoritos, la gente quiere organizar sus películas en listas - como "Mis Favoritas" o "Pendientes de ver". Además, por eso se creó un sistema que te permite crear y gestionar tus propias colecciones, con opciones de privacidad y todo.
+
+• Sistema de reseñas: Queríamos que la gente pudiera compartir sus opiniones. Además, por eso incluimos un sistema de reseñas donde puedes escribir lo que piensas, dar una puntuación y ver qué opinan otros.
+
+• Roles y moderación: Como cualquier comunidad, necesitamos mantener un buen ambiente. Además, por eso se creó diferentes roles de usuario - desde invitados hasta administradores - y un sistema de moderación para las reseñas.
+
+• Diseño responsive: La gente usa muchos dispositivos diferentes, así que nos aseguramos de que LaFilmoteca funcione bien en todos ellos. se usó Tailwind CSS para crear una interfaz que se adapta a cualquier pantalla.
+
+Con todo esto en mente, definimos los objetivos principales:
+
+• Crear una web donde la gente pueda buscar películas y ver sus detalles, usando TMDB como fuente de datos.
+
+• Permitir que los usuarios se registren, inicien sesión y personalicen su perfil.
+
+• Dar a los usuarios la posibilidad de crear y gestionar sus propias colecciones de películas.
+
+• Desarrollar un sistema completo de reseñas, con valoraciones y "me gusta".
+
+• Incluir un panel de administración para moderar contenido y gestionar usuarios.
+
+• Garantizar la seguridad y privacidad de los datos.
+
+• Asegurar que la web sea rápida y fácil de usar en cualquier dispositivo.
+
+Además, estos objetivos nos guiaron en la siguiente fase, donde nos centramos en el diseño técnico y la arquitectura.
+
+2. Además, fase II: Diseño Técnico y Estructural
+En la fase de Diseño se concretan las decisiones arquitectónicas y la planificación técnica que
+guiarán la implementación. Además, esto incluye la selección del stack tecnológico, la definición de la
+arquitectura de la aplicación (tanto a nivel frontend como la interacción con servicios externos), el
+diseño de la base de datos (modelo de datos y reglas de seguridad) y el diseño de la interfaz de
+usuario (guía de estilos, estructura de navegación y componentes principales). Además, todo el diseño se
+realiza con base en los requisitos identificados, asegurando que cada componente propuesto
+satisfaga una necesidad del sistema. A continuación, se detalla cada aspecto clave del diseño de
+LaFilmoteca.
+
+2.1 Arquitectura de la Aplicación
+LaFilmoteca sigue una arquitectura típica de aplicación web de una sola página (SPA). Además, no existe
+un servidor de aplicación tradicional propio; en su lugar, la lógica de negocio reside en el cliente
+(navegador) desarrollado en React (TypeScript), mientras que se delegan las responsabilidades de
+backend a servicios en la nube (Firebase y la API de TMDB). La arquitectura se puede visualizar
+en capas:
+
+• Capa de Presentación (Frontend): Desarrollada con React 18+ y TypeScript, lo que
+aporta tipado estático para mayor robustez. Además, la aplicación se construyó con la herramienta de
+bundling Vite, que proporciona un entorno de desarrollo rápido y eficiente. Además, la interfaz de usuario
+está compuesta de componentes React reutilizables, estilizados mediante Tailwind CSS para
+asegurar consistencia con la guía de estilos definida. Además, el enrutamiento interno se maneja con
+React Router, permitiendo una navegación fluida entre vistas (páginas) sin recargas completas de
+página. Además, para la gestión del estado global (como la información del usuario autenticado y su rol),
+se emplea el Context API de React, creando un AuthContext que provee los datos de
+autenticación a todos los componentes que los necesiten.
+
+• Capa de Datos (Backend as a Service y APIs): LaFilmoteca delega la persistencia y
+sincronización de datos a Firebase Firestore, una base de datos NoSQL en tiempo real alojada en
+la nube. Además, firestore almacena los datos de usuarios, colecciones y reseñas, entre otros,
+estructurados en colecciones de documentos (ver sección 2.2 para el modelo detallado). Además, adicionalmente, Firebase Authentication gestiona la autenticación de usuarios (registro, login,
+etc.), facilitando la verificación de identidad y emisión de tokens seguros para restringir el acceso
+a los recursos. Además, para obtener la información detallada de películas (sinopsis, reparto, imágenes,
+etc.), la aplicación se integra con la API REST de TMDB – las peticiones a esta API externa las
+realiza directamente el cliente desde el navegador, obteniendo respuestas en formato JSON que
+luego se renderizan en la interfaz. Además, es decir, la arquitectura es en gran medida serverless, donde el
+código cliente interactúa con servicios de terceros: Firebase actúa como nuestro backend para
+datos de la aplicación y TMDB como proveedor de datos de películas.
+
+• Capa de Control y Seguridad: Si bien gran parte de la lógica sucede en el cliente,
+es crucial controlar el acceso a los datos sensibles desde el lado del backend. Además, para ello, se
+diseñaron reglas de seguridad de Firestore que se ejecutan en los servidores de Firebase cada
+vez que una aplicación cliente intenta leer o escribir en la base de datos. Además, estas reglas utilizan la
+autenticación provista por Firebase para autorizar operaciones en función del UID del usuario y
+sus claims (en nuestro caso, el rol del usuario). Además, por ejemplo, se estableció que: cualquiera puede
+leer ciertos datos públicos (como listas de películas o reseñas aprobadas). pero solo el usuario
+dueño de un documento puede modificarlo, con excepciones para administradores que pueden
+tener control total. Además, esta separación garantiza que, incluso si un usuario malintencionado
+manipulara la aplicación cliente, no podría sobrepasar las restricciones definidas en el servidor de
+Firestore, protegiendo la integridad y privacidad de la información.
+
+Además, en cuanto a la integración continua y despliegue, la arquitectura del proyecto incorpora un flujo
+de CI/CD usando GitHub Actions y Firebase Hosting. Además, el código fuente se gestiona en Git
+(plataforma GitHub) y se adoptó un modelo de ramas estilo GitFlow (detallado más adelante en la
+sección de Desarrollo). Además, cuando se fusionan cambios a la rama principal (main), un workflow de
+GitHub Actions se activa automáticamente: este workflow instala las dependencias, construye la
+aplicación (generando los archivos estáticos optimizados con Vite) y finalmente despliega la
+versión de producción a Firebase Hosting. Además, de esta forma, el despliegue es automatizado y
+reproducible, reduciendo la posibilidad de errores manuales y asegurando que la versión alojada
+esté siempre actualizada con los últimos cambios validados. Además, la arquitectura sin servidor y el
+hosting en Firebase permiten además escalar la aplicación fácilmente para atender a más
+usuarios, sin necesidad de administrar servidores propios.
+
+Además, en resumen, el diseño arquitectónico de LaFilmoteca se basa en un cliente React robusto,
+potenciado por servicios cloud:
+React para la interfaz dinámica, Firebase para autenticación, base de datos y hosting. y TMDB
+como fuente de datos de películas. Además, esta elección minimiza la complejidad de backend para el
+desarrollador, aprovechando servicios gestionados, y cumple con los requisitos de rapidez,
+fiabilidad y seguridad planteados inicialmente.
+
+2.2 Modelo de Datos (Firestore) y Estructura de la Base de Datos
+En Firestore, los datos se organizan en colecciones de documentos. Además, tras analizar las necesidades
+de información de LaFilmoteca, se definieron las siguientes colecciones principales en la base de
+datos, junto a sus campos más relevantes:
+
+• Colección users: Almacena el perfil de cada usuario registrado. Además, el documento de
+un usuario tiene como ID su UID (identificador único proporcionado por Firebase Auth). Además, los
+campos incluyen la información básica de la cuenta y configuraciones de estado y rol. Además, a
+continuación se muestra la estructura en formato TypeScript de un documento de users:
+{
+uid: string; // UID del usuario (coincide con Firebase Auth)
+email: string; // Correo electrónico del usuario
+displayName: string; // Nombre público mostrado en la aplicación
+photoURL?: string; // URL de la foto de perfil (opcional)
+role: 'user' | 'admin'; // Rol del usuario en la aplicación
+isActive: boolean; // Indica si la cuenta está activa o ha sido desactivada
+bio?: string; // Biografía o descripción del usuario (opcional)
+createdAt: Timestamp; // Fecha de creación de la cuenta
+updatedAt: Timestamp; // Fecha de la última actualización del perfil
+}
+Como se observa, cada usuario tiene un campo role que puede ser 'user' (usuario estándar) o
+'admin'. Además, aunque durante la identificación se consideró un rol "invitado", en la base de datos solo
+se almacenan usuarios registrados; un invitado equivale simplemente a un usuario no autenticado
+que por tanto no tendrá documento en users. Además, el campo isActive es un indicador de estado de la
+cuenta: un administrador puede cambiarlo a false para desactivar/bloquear temporalmente a un
+usuario, impidiéndole realizar operaciones (esto se implementa mediante reglas de seguridad que
+verifican isActive). Además, adicionalmente, se almacenan campos como createdAt y updatedAt para
+auditoría y posibles estadísticas (p.ej., saber cuándo se unió un usuario). Además, la información del perfil
+(nombre a mostrar, foto, bio) permite personalizar la experiencia social dentro de la aplicación.
+
+• Colección collections: Representa las colecciones personalizadas de películas
+creadas por los usuarios. Además, cada documento en collections corresponde a una lista/colección; por
+ejemplo, un usuario podría tener una colección llamada "Películas Pendientes". Además, la estructura es
+la siguiente:
+{
+id: string; userId: string; name: string; description?: string; isPublic: boolean; coverImage?: string; movieCount: number; createdAt: Timestamp; updatedAt: Timestamp; // ID único de la colección (generado automáticamente)
+// UID del usuario propietario/creador de la colección
+// Nombre de la colección (ej: "Películas Pendientes")
+// Descripción de la colección (opcional)
+// Indica si la colección es pública (visible para otros) o privada
+// URL de imagen de portada representativa de la colección (opcional)
+// Cantidad de películas incluidas en la colección
+// Fecha de creación de la colección
+// Fecha de última modificación
+}
+El campo userId vincula la colección a su dueño. Además, el flag isPublic permite configurar la visibilidad:
+si true, la colección podría ser vista (en lectura) por otros usuarios, fomentando la compartición; si
+false, la colección es privada del usuario. Además, esto añade una capa social opcional y fue incluido en
+previsión de funcionalidad de compartir recomendaciones, aunque en la versión actual las
+colecciones públicas son básicas. Además, el campo movieCount se actualiza para reflejar el número de
+películas contenidas, lo cual es útil para mostrar resúmenes o estadísticas sin tener que contar en
+cada consulta (es una forma de desnormalización para eficiencia). Además, finalmente, coverImage puede
+almacenar la URL de algún póster representativo (posiblemente el póster de la película favorita de
+esa colección) para dar identidad visual a la lista.
+
+• Colección collectionMovies: Para mantener la relación muchos a muchos entre las
+colecciones y las películas, se diseñó esta colección auxiliar. Además, cada documento en
+collectionMovies representa la inclusión de una determinada película en una determinada
+colección, sirviendo esencialmente como un registro de asociación. Además, sus campos principales son:
+{
+id: string; collectionId: string; movieId: string; userId: string; addedAt: Timestamp; // ID del documento de asociación (UUID único)
+// ID de la colección a la que pertenece la película
+// ID de la película (correspondiente al ID de TMDB u otra referencia única)
+// UID del usuario dueño de la colección (redundante para facilitar consultas)
+// Fecha en que se añadió la película a la colección
+}
+Mediante esta estructura, una película puede pertenecer a múltiples colecciones (incluso de
+distintos usuarios) sin duplicar toda la información de la película. Aquí movieId suele ser el ID de
+TMDB de la película agregada. Además, en lugar de guardar todos los datos de la película en Firestore, se
+almacena este identificador externo; así, cuando la aplicación necesita mostrar detalles de la
+película dentro de una colección, utiliza el movieId para buscar la info actualizada en TMDB
+(ahorrando espacio de almacenamiento y garantizando datos frescos). Además, el campo userId repetido
+agiliza consultas, pues muchas veces se querrá obtener "todas las películas de todas las colecciones de un usuario X" o "todas las colecciones donde aparece X película" con consultas sencillas. Además, con userId presente, se puede hacer una consulta directa en collectionMovies por ese campo (Firestore permite índices compuestos para consultas que involucren userId junto con otros campos como collectionId en filtros).
+
+• Colección reviews: Contiene todas las reseñas de películas escritas por los
+usuarios. Cada documento representa una reseña individual. Además, dado que una reseña la escribe un
+usuario sobre una película específica, esta colección relaciona usuarios con películas de manera
+similar a collectionMovies pero con más contenido asociado. Además, la estructura diseñada es:
+{
+id: string; movieId: string; userId: string; userName: string; // ID único de la reseña
+// ID de la película reseñada (referencia a TMDB)
+// UID del autor de la reseña
+// Nombre público del autor (capturado para mostrar, redundante a
+user.profile)
+userPhotoURL?: string; // URL de la foto de perfil del autor en el momento de reseñar
+title: string; // Título breve de la reseña
+content: string; // Texto completo de la reseña
+rating: number; // Puntuación otorgada (1 a 5 estrellas)
+likes: number; // Número de "me gusta" que otros usuarios dieron a esta reseña
+isApproved: boolean; // Indicador de si la reseña ha sido aprobada por un moderador
+createdAt: Timestamp; // Fecha de creación de la reseña
+updatedAt: Timestamp; // Fecha de última actualización (para editar reseña)
+}
+Los campos movieId y userId vinculan la reseña a la película y al autor respectivamente. Además, adicionalmente, se almacenan userName y userPhotoURL en la reseña para congelar cómo se
+identifica el autor en ese momento; esto es útil porque si el usuario cambia luego su nombre o
+foto en su perfil, la reseña igualmente conservará los valores con que fue publicada (evitando
+inconsistencias en históricos o carga extra de mirar la colección users para cada reseña). Además, cada
+reseña incluye un título y un contenido textual donde el usuario expresa su opinión, así como una
+valoración numérica. Además, el campo likes lleva la cuenta agregada de "me gusta" recibidos; en la
+implementación actual, los likes se incrementan cuando un usuario pulsa "me gusta" en una
+reseña (y se podría decrementar si se quita el like). Además, no se almacenan qué usuarios dieron like en
+este esquema, solo el conteo total, aunque para prevenir múltiples likes del mismo usuario se
+maneja lógicamente en el frontend (por simplificar, no se creó una subcolección de "likes" por
+usuario, asumiendo un contexto de confianza básica). Además, crucial en este modelo es isApproved: cuando un usuario crea una reseña, inicialmente se marca
+isApproved: false, lo que indica que la reseña está pendiente de moderación. Además, las reseñas
+pendientes no deben mostrarse públicamente hasta ser aprobadas por un administrador. Además, una vez
+un administrador revisa y aprueba, cambia este campo a true (vía una funcionalidad del panel de
+admin), y desde entonces la reseña pasa a ser visible para todos en la aplicación. Además, este
+mecanismo responde al requerimiento de moderación de contenido, evitando que se publique
+directamente cualquier texto potencialmente inapropiado. Además, la timestamp updatedAt permite
+registrar cuándo se editó una reseña (por ejemplo, si el usuario la modifica o si el admin la
+aprueba, se podría actualizar ese campo). Además de estas colecciones principales, existen posiblemente otras colecciones o campos no
+detallados arriba (por ejemplo, una colección stats o similar para datos agregados. aunque en la
+implementación actual no fue necesario; o colecciones para notificaciones, etc., si se extendiera
+el proyecto). Además, no obstante, con las cuatro colecciones descritas se cubren los datos centrales de
+la aplicación. Además, relaciones y consideraciones de diseño: Cabe destacar que la base de datos está normalizada
+en lo posible para Firestore. Además, se utilizan identificadores cruzados en lugar de anidar
+subcolecciones profundas, para facilitar consultas directas. Además, por ejemplo, se optó por
+collectionMovies en lugar de tener dentro de cada documento de collections una subcolección de
+películas, porque así se puede obtener "todas las películas de todas las colecciones de un
+usuario" o "todas las colecciones donde aparece X película" con consultas sencillas. Además, firestore
+requiere crear índices compuestos para ciertas consultas con múltiples filtros o filtros +
+ordenamientos; en este proyecto se configuraron índices en firestore.indexes.json según fue
+necesario (por ejemplo, para consultar reseñas aprobadas de una películ
