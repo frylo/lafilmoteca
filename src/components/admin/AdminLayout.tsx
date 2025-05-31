@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -24,12 +23,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-filmoteca-white">Panel de Administración</h1>
-        <Link to="/" className="text-filmoteca-olive hover:text-filmoteca-white">
-          Volver a la aplicación
-        </Link>
       </div>
 
-      {/* Navegación por pestañas */}
       <div className="border-b border-filmoteca-gray border-opacity-30 mb-6">
         <nav className="flex -mb-px">
           {tabs.map(tab => (
@@ -49,7 +44,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
         </nav>
       </div>
 
-      {/* Contenido principal */}
       <div className="card">
         {children}
       </div>

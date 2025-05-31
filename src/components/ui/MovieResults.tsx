@@ -16,7 +16,6 @@ const MovieResults = ({
   movies,
   loading,
   error,
-  query,
   totalPages,
   currentPage,
   onPageChange,
@@ -31,14 +30,6 @@ const MovieResults = ({
     return (
       <div className="p-4 mb-4 text-filmoteca-white bg-red-900 bg-opacity-30 border border-red-800 rounded-lg">
         {error}
-      </div>
-    );
-  }
-
-  if (movies.length === 0 && query.trim()) {
-    return (
-      <div className="text-center py-8 text-filmoteca-gray">
-        No se encontraron películas para "{query}"
       </div>
     );
   }
